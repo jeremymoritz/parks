@@ -66,7 +66,7 @@ app.controller('ParksController', [
 
 		$s.changeState = function changeState(cell) {
 			if (_.contains($s.cellStates, $s.selectedAction)) {
-				cell.state = $s.selectedAction);
+				cell.state = $s.selectedAction;
 			} else {	//	the rotate option is on
 				cell.state = (cell.state === 'dot' ? 'tree' : (cell.state === 'tree' ? undefined : 'dot'));
 			}
