@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Parks</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css">
+	<link rel="stylesheet" href="parks.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.js"></script>
+</head>
+<body>
+	<div class="container" ng-app="ParksApp" ng-controller="ParksController">
+		<div class="row">
+			<section class="col-xs-12 puzzle">
+				<table>
+					<caption>Puzzle No. {{puzzle.id}}</caption>
+					<tbody>
+						<tr ng-repeat="row in puzzle.rows">
+							<td ng-repeat="cell in row.cells"
+								ng-class="'color-' + cell.color"
+								ng-click="changeState(cell)">
+								<i class="fa fa-lg fa-fw" ng-class="'fa-' + actionIcons[cell.state]"></i>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+		</div>
+		<div class="row">
+			<section class="col-xs-12">
+				<section class="action-bar">
+					<ul class="btn-group">
+						<li class="btn btn-default"
+							ng-repeat="action in actions"
+							ng-class="{active: selectedAction === action}"
+							ng-click="selectThisAction(action)">
+							<i class="fa fa-fw" ng-class="'fa-' + actionIcons[action]"></i>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="row">
+			<section class="col-xs-12">
+				<button class="btn btn-danger"
+					ng-click="solvePuzzle()"><i class="fa fa-key"></i> Solve</button>
+			</section>
+		</div>
+	</div>
+	<script src="http://code.jquery.com/jquery-2.1.1.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	<script src="parks.js"></script>
+</body>
+</html>
