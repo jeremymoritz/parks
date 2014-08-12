@@ -1,15 +1,15 @@
 {
-  "name": "core",
-  "version": "0.9.0",
-  "description": "Edge UI Core",
-  "homepage": "http://ux.principal.com/styleguide/",
-  "author": "The Principal Financial Group",
+  "name": "parks",
+  "version": "0.1.0",
+  "description": "Park Puzzle Solver",
+  "homepage": "http://moritzcompany.com",
+  "author": "Moritz Company",
   "repository": {
     "type": "git",
-    "url": "https://scm.principal.com/scm/edgeui/core.git"
+    "url": "https://github.com/jeremymoritz/parks.git"
   },
   "bugs": {
-    "url": "https://support.principal.com/secure/RapidBoard.jspa?rapidView=515&view=detail"
+    "url": "https://github.com/jeremymoritz/parks/issues"
   },
   "scripts": {
     "install": "bower install"
