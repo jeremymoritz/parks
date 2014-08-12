@@ -5,10 +5,7 @@ module.exports = function(grunt) {
 			reporter: require("jshint-stylish"),
 			jshintrc: ".jshintrc"
 		},
-		all: [
-      "src/**/*.js",
-      "!src/js/patches/*.js"
-    ]
+		all: "src/**/*.js"
 	});
 
 	grunt.loadNpmTasks("grunt-contrib-jshint");

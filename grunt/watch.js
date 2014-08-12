@@ -6,33 +6,15 @@ module.exports = function(grunt) {
 			],
 			tasks: [
 				"jshint",
-				"concat:js",
-				"concat:tests"
+				"concat"
 			]
 		},
 		css: {
 			files: [
-				"src/**/*.scss"
+				"src/**/*.less"
 			],
 			tasks: [
-				"sass:dev"
-			]
-		},
-		imgsvg: {
-			files: [
-				"src/**/*.svg",
-				"src/**/*.png"
-			],
-			tasks: [
-				"copy:dev"
-			]
-		},
-		fonts: {
-			files: [
-				"lib/bootstrap-sass/vendor/assets/fonts/bootstrap/**"
-			],
-			tasks: [
-				"copy:dev"
+				"less:dev"
 			]
 		},
 		qunit: {
@@ -41,7 +23,6 @@ module.exports = function(grunt) {
 				"src/**/*.html"
 			],
 			tasks: [
-				"replace:dev",
 				"qunit"
 			]
 		}

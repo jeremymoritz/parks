@@ -7,8 +7,8 @@ module.exports = function(grunt) {
 				{
 					expand: true,
 					cwd: "src/",
-					src: ["**"],
-					dest: "<%= distPath %>/"
+					src: ["**/*.html"],
+					dest: "<%= distRoot %>"
 				},
 
 				// copy all fontawesome fonts
@@ -16,7 +16,7 @@ module.exports = function(grunt) {
 					expand: true,
 					cwd: "lib/fontawesome/fonts/",
 					src: ["**"],
-					dest: "<%= distPath %>/fonts/"
+					dest: "<%= distRoot %>/fonts/"
 				}
 			]
 		}

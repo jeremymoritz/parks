@@ -9,7 +9,7 @@ module.exports = function(grunt) {
 	// Define the root directory for distribution
 	var distRoot = "dist";
 	// Build main distribution path. NOTE: There is no slash at the end
-	var distPath = distRoot + "/";
+	var distPath = distRoot + "/_inc/";
 	// Set distribution path to grunt config object
 	// This should be used when defining output files
 	// Access this config option using <%= distRoot %>
@@ -42,13 +42,12 @@ module.exports = function(grunt) {
 	// Note: all subtasks of the sass and autoprefixer tasks will run. This will generate a minified and unminified version of the css.
 	// If you run this task all of the example html files and generated documentation will reference the unminified version of Edge UI's css and js
 	grunt.registerTask("dev", [
-		"clean:dist",
-		"copy:dev",
+		"clean",
 		"jshint",
+		"less:dev",
+		"copy:dev",
 		"pleeease",
-		"concat:js",
-		"uglify:prod",
-		"replace:prod",
+		"concat",
 		"qunit"
 	]);
 
@@ -57,19 +56,12 @@ module.exports = function(grunt) {
 	// Note: all subtasks of the sass and autoprefixer tasks will run. This will generate a minified and unminified version of the css.
 	// If you run this task all of the example html files and generated documentation will reference the minified version of Edge UI's css and js
 	grunt.registerTask("prod", [
-		"clean:dist",
-		"jshint",
-		"copy:select2",
-		"sass",
-		"autoprefixer",
-		"concat:js",
-		"concat:ie8js",
-		"uglify:prod",
-		"uglify:ie8js",
-		"concat:tests",
-		"modernizr",
-		"copy:imagesfonts",
-		"replace:prod",
+		"clean",
+		"less:prod",
+		"copy",
+		"pleeease",
+		"concat",
+		"uglify",
 		"qunit"
 	]);
 

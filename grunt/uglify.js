@@ -8,7 +8,7 @@ module.exports = function(grunt) {
 				banner: "<%= banner %>",
 			},
 			files: {
-				"<%= distPath %>/parks.min.js": "<%= distPath %>/parks.js"
+				"<%= distPath %>parks.js": "<%= distPath %>parks.js"
 			}
 		}
 	});
