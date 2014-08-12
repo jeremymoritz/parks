@@ -8,27 +8,16 @@ module.exports = function(grunt) {
 	// Define other properties of the config object
 	// Define the root directory for distribution
 	var distRoot = "dist";
-	// Derive major version from package.json version property
-	var pkgObj = grunt.config.get("pkg");
-	var majorVersion = pkgObj.version.substring(0, 1);
-	var majorVersionStr = "v" + majorVersion;
 	// Build main distribution path. NOTE: There is no slash at the end
-	var distPath = distRoot + "/" + majorVersionStr;
+	var distPath = distRoot + "/";
 	// Set distribution path to grunt config object
 	// This should be used when defining output files
 	// Access this config option using <%= distRoot %>
 	grunt.config.set("distRoot", distRoot);
-	// Access this config option using <%= majorVersion %>
-	grunt.config.set("majorVersion", majorVersionStr);
 	// Access this config option using <%= distPath %>
 	grunt.config.set("distPath", distPath);
 
-	// Typography font url (Gotham)
-	var typographyFontUrl = "https://cloud.typography.com/7198092/657064/css/fonts.css";
-	// Access this config option using <%= typographyFontUrl %>
-	grunt.config.set("typographyFontUrl", typographyFontUrl);
-
-	// Define banner for edgeui css and js files
+	// Define banner for css and js files
 	var banner = "/*!\n" +
           " * <%= pkg.description %> - v<%= pkg.version %> \n" +
           " * Build Date: <%= grunt.template.today('yyyy.mm.dd') %> \n" +
@@ -43,7 +32,6 @@ module.exports = function(grunt) {
 
 	// Register task for developing locally
 	// Runs all of the dev task plus runs watch
-	// Note this should not be used in Bamboo
 	grunt.registerTask("dev-local", [
 		"dev",
 		"watch"
@@ -55,17 +43,12 @@ module.exports = function(grunt) {
 	// If you run this task all of the example html files and generated documentation will reference the unminified version of Edge UI's css and js
 	grunt.registerTask("dev", [
 		"clean:dist",
+		"copy:dev",
 		"jshint",
-		"copy:select2",
-		"sass",
-		"autoprefixer",
+		"pleeease",
 		"concat:js",
-		"concat:ie8js",
 		"uglify:prod",
-		"uglify:ie8js",
-		"concat:tests",
-		"copy:imagesfonts",
-		"replace:dev",
+		"replace:prod",
 		"qunit"
 	]);
 

@@ -6,6 +6,7 @@
     "jquery": "2.1.1",
     "qunit": "1.4.0",
     "fontawesome": "4.1.0",
-    "underscore": "1.6.0"
+    "lodash": "2.4.1",
+    "angular": "1.2.20"
   }
 }
