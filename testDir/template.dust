@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>{title} - Principal Financial Group</title>
+	<link rel="stylesheet" type="text/css" href="https://cloud.typography.com/7198092/657064/css/fonts.css" />
+	<link rel="stylesheet" href="/allweb/edgeui/v0/edgeui.min.css">
+	<link rel="stylesheet" href="/participant/member/css/app.css">
+	<!--[if lt IE 9]>
+	  <script src="/allweb/edgeui/v0/ie8includes.js"></script>
+	<![endif]-->
+	{+pageStyles /}
+
+	<script src="/pension/FEDev/common/js/requirecommon.js"></script>
+	<script src="/participant/member/js/component/webtrends-adapter.js"></script>
+	<script src="/participant/member/js/component/web-logger.js"></script>
+	<script>
+		{?pageContext}
+			var pageContext = {pageContext|js|s};
+		{:else}
+			var pageContext = {};
+		{/pageContext}
+		{?alert}
+			var alertData = {alert|js|s};
+		{/alert}
+		pageContext.activeLink = "{activelink}";
+		require(["common"], function () {
+			require(["{appjs}"]);
+		});
+
+		$(function(){
+			var webLogger = new edgeui.WebLogger("", {
+				path: "PPE-test-metric-page.html",
+				logOnLoadTags: true,
+				onLoadData: {
+					contract: pageContext.contract,
+					memberId: pageContext.memberId
+				}
+			});
+
+			webLogger.init();
+		});
+	</script>
+</head>
+<body class="page-ppe page-dashboard">
+	<!-- header -->
+	{>header /}
+	
+	<!-- main content -->
+	{+content /}
+	
+	<!-- footer -->
+	{>footer /}
+</body>
+</html>
