@@ -48,7 +48,8 @@ module.exports = function(grunt) {
 		"copy:dev",
 		"pleeease:dev",
 		"concat",
-		"qunit"
+		"qunit",
+		"watch"
 	]);
 
 	// Register task for generating minified (Prod ready) output files
