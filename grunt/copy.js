@@ -48,7 +48,7 @@ module.exports = function(grunt) {
 				{
 					expand: true,
 					cwd: "src/",
-					src: ["!test/", "**/*.html"],
+					src: ["*.html"],
 					dest: "<%= distRoot %>"
 				},
 

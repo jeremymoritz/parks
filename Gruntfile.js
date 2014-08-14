@@ -46,11 +46,11 @@ module.exports = function(grunt) {
 		"jshint",
 		"less:dev",
 		"copy:dev",
+		"replace:dev",
 		"pleeease:dev",
 		"concat",
 		"copy:tests",
-		"qunit",
-		"watch"
+		"qunit"
 	]);
 
 	// Register task for generating minified (Prod ready) output files
@@ -61,8 +61,9 @@ module.exports = function(grunt) {
 		"clean",
 		"less:prod",
 		"copy:prod",
+		"replace:prod",
 		"pleeease:prod",
-		"concat",
+		"concat:prod",
 		"uglify"
 	]);
 

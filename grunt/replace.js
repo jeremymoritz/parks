@@ -26,20 +26,12 @@
 module.exports = function(grunt) {
 
   grunt.config("replace", {
-    prod: {
+    dev: {
       options: {
         patterns: [
           {
-            match: "typographyUrl",
-            replacement: "<%= typographyFontUrl %>"
-          },
-          {
-            match: "majorVersion",
-            replacement: "<%= majorVersion %>"
-          },
-          {
-            match: "edgeuiFileName",
-            replacement: "edgeui.min"
+            match: "javascriptReplaceFiles",
+            replacement: "<script src='_inc/lib.js'></script><script src='_inc/parks.js'></script>"
           }
         ]
       },
@@ -48,7 +40,27 @@ module.exports = function(grunt) {
           expand: true,
           flatten: true,
           src: [
-            "src/**/*.html"
+            "<%= distRoot %>/*.html"
+          ],
+          dest: "<%= distRoot %>/"
+        }
+      ]
+    },
+    prod: {
+      options: {
+        patterns: [
+          {
+            match: "javascriptReplaceFiles",
+            replacement: "<script src='_inc/parks.js'></script>"
+          }
+        ]
+      },
+      files: [
+        {
+          expand: true,
+          flatten: true,
+          src: [
+            "<%= distRoot %>/*.html"
           ],
           dest: "<%= distRoot %>/"
         }

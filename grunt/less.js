@@ -13,15 +13,15 @@ module.exports = function(grunt) {
 				]
 			}
 		},
-		production: {
+		prod: {
 			options: {
 				cleancss: true,
-				compress: true,
-				banner: "<%= banner %>"
+				compress: true
 			},
 			files: {
 				"<%= distPath %>parks.css": [
 					"lib/bootstrap/less/bootstrap.less",
+					"lib/fontawesome/less/font-awesome.less",
 					"src/**/*.less"
 				]
 			}
