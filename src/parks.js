@@ -108,6 +108,34 @@ app.controller('ParksController', [
 			}
 		}
 
+		$s.availablePuzzles = [
+			{
+				id: 1,
+				puzzleColors: [
+					[1, 1, 1, 1, 2],
+					[2, 2, 2, 2, 2],
+					[2, 2, 3, 4, 4],
+					[3, 3, 3, 3, 3],
+					[3, 3, 5, 3, 3]
+				]
+			}, {
+				id: 2,
+				puzzleColors: [
+					[1, 1, 1, 2, 2],
+					[1, 1, 1, 1, 3],
+					[1, 1, 3, 3, 3],
+					[1, 1, 4, 4, 5],
+					[5, 5, 5, 5, 5]
+				]
+			}
+		];
+		// $s.puzzleChose = $s.availablePuzzles[0];
+		$s.puzzleChose;
+
+		$s.choosePuzzle = function choosePuzzle(puzzleChose) {
+			console.log(puzzleChose);
+		};
+
 		$s.puzzle = new Puzzle(1);
 
 		$s.selectedAction = 'rotate';
@@ -215,7 +243,7 @@ app.controller('ParksController', [
 
 			_.forEach(cells, function eachCell(cell) {
 				if (isAlone(cell, 'row') || isAlone(cell, 'column') || isAlone(cell, 'park')) {
-					lonerCells.push(cell);	//	this cell is all alone in its row, column, or park!
+					lonerCells.push(cell);	//	this cell is all alone in its row, column, or park! (must be a tree!)
 				}
 			});
 

@@ -23,7 +23,8 @@ module.exports = function(grunt) {
 				"src/**/*.html"
 			],
 			tasks: [
-				"qunit"
+				"qunit",
+				"copy"
 			]
 		}
 	});
