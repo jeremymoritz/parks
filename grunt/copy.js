@@ -17,6 +17,37 @@ module.exports = function(grunt) {
 					cwd: "lib/fontawesome/fonts/",
 					src: ["**"],
 					dest: "<%= distRoot %>/fonts/"
+				},
+
+				// copy Angular for head
+				{
+					src: "lib/angular/angular.js",
+					dest: "<%= distPath %>angular.js"
+				}
+			]
+		},
+		prod: {
+			files: [
+				// copy all images / svgs
+				{
+					expand: true,
+					cwd: "src/",
+					src: ["**/*.html"],
+					dest: "<%= distRoot %>"
+				},
+
+				// copy all fontawesome fonts
+				{
+					expand: true,
+					cwd: "lib/fontawesome/fonts/",
+					src: ["**"],
+					dest: "<%= distRoot %>/fonts/"
+				},
+
+				// copy Angular for head
+				{
+					src: "lib/angular/angular.min.js",
+					dest: "<%= distPath %>angular.js"
 				}
 			]
 		}

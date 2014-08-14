@@ -3,7 +3,7 @@
 <head>
 	<title>Parks</title>
 	<link rel="stylesheet" href="_inc/parks.css">
-	<script src="_inc/parks.js"></script>
+	<script src="_inc/angular.js"></script>
 </head>
 <body>
 	<div class="container" ng-app="ParksApp" ng-controller="ParksController">
@@ -14,7 +14,7 @@
 					<tbody>
 						<tr ng-repeat="row in puzzle.rows">
 							<td ng-repeat="cell in row.cells"
-								ng-class="'color-' + cell.color"
+								ng-class="cell.color"
 								ng-click="changeState(cell)">
 								<i class="fa fa-lg fa-fw" ng-class="'fa-' + actionIcons[cell.state]"></i>
 							</td>
@@ -44,5 +44,6 @@
 			</section>
 		</div>
 	</div>
+	<script src="_inc/parks.js"></script>
 </body>
 </html>

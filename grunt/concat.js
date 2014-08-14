@@ -10,7 +10,6 @@ module.exports = function(grunt) {
 			},
 			files: {
 				"<%= distPath %>/parks.js": [
-					"lib/angular/angular.js",
 					"lib/jquery/dist/jquery.js",
 					"lib/bootstrap/dist/js/bootstrap.js",
 					"lib/lodash/dist/lodash.js",

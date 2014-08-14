@@ -46,7 +46,7 @@ module.exports = function(grunt) {
 		"jshint",
 		"less:dev",
 		"copy:dev",
-		"pleeease",
+		"pleeease:dev",
 		"concat",
 		"qunit"
 	]);
@@ -58,8 +58,8 @@ module.exports = function(grunt) {
 	grunt.registerTask("prod", [
 		"clean",
 		"less:prod",
-		"copy",
-		"pleeease",
+		"copy:prod",
+		"pleeease:prod",
 		"concat",
 		"uglify",
 		"qunit"
@@ -67,7 +67,8 @@ module.exports = function(grunt) {
 
 	// default is just dev
 	grunt.registerTask("default", [
-		"dev"
+		"dev",
+		"watch"
 	]);
 
 };
