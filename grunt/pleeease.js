@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
 
-	grunt.config("pleeease", {
+	grunt.config('pleeease', {
 		dev: {
 			options: {
 				optimizers: {
@@ -8,7 +8,7 @@ module.exports = function(grunt) {
 				}
 			},
 			files: {
-				"<%= distPath %>parks.css": "<%= distPath %>parks.css"
+				'<%= distPath %>parks.css': '<%= distPath %>parks.css'
 			}
 		},
 		prod: {
@@ -18,10 +18,10 @@ module.exports = function(grunt) {
 				}
 			},
 			files: {
-				"<%= distPath %>parks.css": "<%= distPath %>parks.css"
+				'<%= distPath %>parks.css': '<%= distPath %>parks.css'
 			}
 		}
 	});
 
-	grunt.loadNpmTasks("grunt-pleeease");
+	grunt.loadNpmTasks('grunt-pleeease');
 };

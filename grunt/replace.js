@@ -1,9 +1,9 @@
 /**
  * Replaces all references for typography.com and edge css / js
  *
- * Any file ending in ".html" with the exception of files ending in
- * "-documentation.html" will be searched for the patterns defined below.
- * This module searches for every instance of a "match" defined below that has a
+ * Any file ending in '.html' with the exception of files ending in
+ * '-documentation.html' will be searched for the patterns defined below.
+ * This module searches for every instance of a 'match' defined below that has a
  * @@ in front of it. For example, the two matches defined below have
  * placeholders in the html pages that look like.
  * - @@typographyUrl
@@ -25,13 +25,13 @@
  */
 module.exports = function(grunt) {
 
-  grunt.config("replace", {
+  grunt.config('replace', {
     dev: {
       options: {
         patterns: [
           {
-            match: "javascriptReplaceFiles",
-            replacement: "<script src='_inc/lib.js'></script><script src='_inc/parks.js'></script>"
+            match: 'javascriptReplaceFiles',
+            replacement: '<script src="_inc/lib.js"></script><script src="_inc/parks.js"></script>'
           }
         ]
       },
@@ -40,9 +40,9 @@ module.exports = function(grunt) {
           expand: true,
           flatten: true,
           src: [
-            "<%= distRoot %>/*.html"
+            '<%= distRoot %>/*.html'
           ],
-          dest: "<%= distRoot %>/"
+          dest: '<%= distRoot %>/'
         }
       ]
     },
@@ -50,8 +50,8 @@ module.exports = function(grunt) {
       options: {
         patterns: [
           {
-            match: "javascriptReplaceFiles",
-            replacement: "<script src='_inc/parks.js'></script>"
+            match: 'javascriptReplaceFiles',
+            replacement: '<script src="_inc/parks.js"></script>'
           }
         ]
       },
@@ -60,13 +60,13 @@ module.exports = function(grunt) {
           expand: true,
           flatten: true,
           src: [
-            "<%= distRoot %>/*.html"
+            '<%= distRoot %>/*.html'
           ],
-          dest: "<%= distRoot %>/"
+          dest: '<%= distRoot %>/'
         }
       ]
     }
   });
 
-  grunt.loadNpmTasks("grunt-replace");
+  grunt.loadNpmTasks('grunt-replace');
 };

@@ -48,7 +48,7 @@ module.exports = function(grunt) {
 		"copy:dev",
 		"replace:dev",
 		"pleeease:dev",
-		"concat",
+		"concat:dev",
 		"copy:tests",
 		"qunit"
 	]);

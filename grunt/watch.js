@@ -1,41 +1,41 @@
 module.exports = function(grunt) {
-	grunt.config.set("watch", {
+	grunt.config.set('watch', {
 		src: {
 			files: [
-				"src/**/*.*"
+				'src/**/*.*'
 			],
 			tasks: [
-				"default"
+				'default'
 			]
 		}
 		// js: {
 		// 	files: [
-		// 		"src/**/*.js"
+		// 		'src/**/*.js'
 		// 	],
 		// 	tasks: [
-		// 		"jshint",
-		// 		"concat"
+		// 		'jshint',
+		// 		'concat'
 		// 	]
 		// },
 		// css: {
 		// 	files: [
-		// 		"src/**/*.less"
+		// 		'src/**/*.less'
 		// 	],
 		// 	tasks: [
-		// 		"less:dev"
+		// 		'less:dev'
 		// 	]
 		// },
 		// qunit: {
 		// 	files: [
-		// 		"src/**/*.js",
-		// 		"src/**/*.html"
+		// 		'src/**/*.js',
+		// 		'src/**/*.html'
 		// 	],
 		// 	tasks: [
-		// 		"qunit",
-		// 		"copy"
+		// 		'qunit',
+		// 		'copy'
 		// 	]
 		// }
 	});
 
-	grunt.loadNpmTasks("grunt-contrib-watch");
+	grunt.loadNpmTasks('grunt-contrib-watch');
 };

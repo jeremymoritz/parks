@@ -1,28 +1,28 @@
 module.exports = function(grunt) {
 
-	grunt.config("copy", {
+	grunt.config('copy', {
 		dev: {
 			files: [
 				// copy all images / svgs
 				{
 					expand: true,
-					cwd: "src/",
-					src: ["**/*.html"],
-					dest: "<%= distRoot %>"
+					cwd: 'src/',
+					src: ['**/*.html'],
+					dest: '<%= distRoot %>'
 				},
 
 				// copy all fontawesome fonts
 				{
 					expand: true,
-					cwd: "lib/fontawesome/fonts/",
-					src: ["**"],
-					dest: "<%= distRoot %>/fonts/"
+					cwd: 'lib/fontawesome/fonts/',
+					src: ['**'],
+					dest: '<%= distRoot %>/fonts/'
 				},
 
 				// copy Angular for head
 				{
-					src: "lib/angular/angular.js",
-					dest: "<%= distPath %>angular.js"
+					src: 'lib/angular/angular.js',
+					dest: '<%= distPath %>angular.js'
 				}
 			]
 		},
@@ -31,14 +31,14 @@ module.exports = function(grunt) {
 
 				// Create tests
 				{
-					src: "<%= distRoot %>/tests/tests.html",
-					dest: "<%= distRoot %>/tests.html"
+					src: '<%= distRoot %>/tests/tests.html',
+					dest: '<%= distRoot %>/tests.html'
 				},
 
 				// Create tests
 				{
-					src: "src/tests/tests.js",
-					dest: "<%= distPath %>tests.js"
+					src: 'src/tests/tests.js',
+					dest: '<%= distPath %>tests.js'
 				}
 			]
 		},
@@ -47,28 +47,28 @@ module.exports = function(grunt) {
 				// copy all images / svgs
 				{
 					expand: true,
-					cwd: "src/",
-					src: ["*.html"],
-					dest: "<%= distRoot %>"
+					cwd: 'src/',
+					src: ['*.html'],
+					dest: '<%= distRoot %>'
 				},
 
 				// copy all fontawesome fonts
 				{
 					expand: true,
-					cwd: "lib/fontawesome/fonts/",
-					src: ["**"],
-					dest: "<%= distRoot %>/fonts/"
+					cwd: 'lib/fontawesome/fonts/',
+					src: ['**'],
+					dest: '<%= distRoot %>/fonts/'
 				},
 
 				// copy Angular for head
 				{
-					src: "lib/angular/angular.min.js",
-					dest: "<%= distPath %>angular.js"
+					src: 'lib/angular/angular.min.js',
+					dest: '<%= distPath %>angular.js'
 				}
 			]
 		}
 	});
 
-	grunt.loadNpmTasks("grunt-contrib-copy");
+	grunt.loadNpmTasks('grunt-contrib-copy');
 
 };

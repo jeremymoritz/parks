@@ -3,13 +3,13 @@
  */
 module.exports = function(grunt) {
 
-	grunt.config("less", {
+	grunt.config('less', {
 		dev: {
 			files: {
-				"<%= distPath %>parks.css": [
-					"lib/bootstrap/less/bootstrap.less",
-					"lib/fontawesome/less/font-awesome.less",
-					"src/**/*.less"
+				'<%= distPath %>parks.css': [
+					'lib/bootstrap/less/bootstrap.less',
+					'lib/fontawesome/less/font-awesome.less',
+					'src/**/*.less'
 				]
 			}
 		},
@@ -19,14 +19,14 @@ module.exports = function(grunt) {
 				compress: true
 			},
 			files: {
-				"<%= distPath %>parks.css": [
-					"lib/bootstrap/less/bootstrap.less",
-					"lib/fontawesome/less/font-awesome.less",
-					"src/**/*.less"
+				'<%= distPath %>parks.css': [
+					'lib/bootstrap/less/bootstrap.less',
+					'lib/fontawesome/less/font-awesome.less',
+					'src/**/*.less'
 				]
 			}
 		}
 	});
 
-	grunt.loadNpmTasks("grunt-contrib-less");
+	grunt.loadNpmTasks('grunt-contrib-less');
 };
