@@ -149,9 +149,10 @@ app.controller('ParksController', [
 			$s.selectedAction = action;
 		};
 
-		$s.changeState = function changeState(cell, state) {
+		$s.changeState = function changeState(cell, state, blank) {
+			var maintain = blank || false;
 			if (state) {	//	this is set via the solve button only
-				cell.state = state;
+				cell.state = !maintain ? state : cell.state || state;
 
 				if (state === 'tree') {
 					autoDotNeighbors(cell, 'all');
@@ -211,7 +212,7 @@ app.controller('ParksController', [
 			if(direction) {
 				_.forEach(cells, function(cell) {
 					if( cell[direction] === pick[direction] && cell.color !== pick.color) {
-						cell.state = cell.state || 'dot';
+						$s.changeState(cell, 'dot', true);
 					}
 				});
 			}
