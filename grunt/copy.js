@@ -26,13 +26,29 @@ module.exports = function(grunt) {
 				}
 			]
 		},
+		tests: {
+			files: [
+
+				// Create tests
+				{
+					src: "<%= distRoot %>/tests/tests.html",
+					dest: "<%= distRoot %>/tests.html"
+				},
+
+				// Create tests
+				{
+					src: "src/tests/tests.js",
+					dest: "<%= distPath %>tests.js"
+				}
+			]
+		},
 		prod: {
 			files: [
 				// copy all images / svgs
 				{
 					expand: true,
 					cwd: "src/",
-					src: ["**/*.html"],
+					src: ["!test/", "**/*.html"],
 					dest: "<%= distRoot %>"
 				},
 

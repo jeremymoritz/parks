@@ -48,6 +48,7 @@ module.exports = function(grunt) {
 		"copy:dev",
 		"pleeease:dev",
 		"concat",
+		"copy:tests",
 		"qunit",
 		"watch"
 	]);
@@ -62,8 +63,7 @@ module.exports = function(grunt) {
 		"copy:prod",
 		"pleeease:prod",
 		"concat",
-		"uglify",
-		"qunit"
+		"uglify"
 	]);
 
 	// default is just dev
