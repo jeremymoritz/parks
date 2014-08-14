@@ -9,12 +9,13 @@ module.exports = function(grunt) {
 				banner: "<%= banner %>",
 			},
 			files: {
-				"<%= distPath %>parks.js": [
+				"<%= distPath %>lib.js": [
 					"lib/jquery/dist/jquery.js",
 					"lib/bootstrap/dist/js/bootstrap.js",
-					"lib/lodash/dist/lodash.js",
-					"!src/tests/*",
-					"src/**/*.js"
+					"lib/lodash/dist/lodash.js"
+				],
+				"<%= distPath %>parks.js": [
+					"src/*.js"
 				]
 			}
 		}
