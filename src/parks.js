@@ -43,51 +43,9 @@ app.controller('ParksController', [
 
 		var $s = $scope;
 
-		function loadPuzzle() {
-			//	BLANK PUZZLE TEMPLATE
-			// var puzzleColors = [
-			// 	[, , , , ],
-			// 	[, , , , ],
-			// 	[, , , , ],
-			// 	[, , , , ],
-			// 	[, , , , ]
-			// ];
-
-			//	one puzzle option (WORKS!)
-			// var puzzleColors = [
-			// 	[1, 1, 1, 1, 2],
-			// 	[2, 2, 2, 2, 2],
-			// 	[2, 2, 3, 4, 4],
-			// 	[3, 3, 3, 3, 3],
-			// 	[3, 3, 5, 3, 3]
-			// ];
-
-			//	another option for puzzle (WORKS!)
-			var puzzleColors = [
-				[1, 1, 1, 2, 2],
-				[1, 1, 1, 1, 3],
-				[1, 1, 3, 3, 3],
-				[1, 1, 4, 4, 5],
-				[5, 5, 5, 5, 5]
-			];
-
-			//	another option for puzzle (DOESN'T WORK WITH THIS ONE YET!)
-			// var puzzleColors = [
-			// 	[1, 1, 1, 2, 2],
-			// 	[1, 1, 1, 2, 2],
-			// 	[1, 1, 1, 3, 4],
-			// 	[5, 5, 5, 3, 4],
-			// 	[5, 3, 3, 3, 4]
-			// ];
-
-			//	another option for puzzle (DOESN'T WORK WITH THIS ONE YET!)
-			// var puzzleColors = [
-			// 	[1, 2, 2, 2, 2],
-			// 	[1, 1, 2, 3, 2],
-			// 	[4, 1, 2, 3, 5],
-			// 	[4, 1, 1, 3, 5],
-			// 	[4, 4, 3, 3, 3]
-			// ];
+		function loadPuzzle(newPuzzle) {
+			$s.puzzle = new Puzzle(newPuzzle.id);
+			var puzzleColors = newPuzzle.puzzleColors;
 
 			var gridSize = 5;	//	5x5 puzzle
 
@@ -129,14 +87,43 @@ app.controller('ParksController', [
 				]
 			}
 		];
-		// $s.puzzleChose = $s.availablePuzzles[0];
-		$s.puzzleChose;
+			//	BLANK PUZZLE TEMPLATE
+			// {
+			// 	id: ,
+			// 	puzzleColors: [
+			// 		[, , , , ],
+			// 		[, , , , ],
+			// 		[, , , , ],
+			// 		[, , , , ],
+			// 		[, , , , ]
+			// 	]
+			// }
 
-		$s.choosePuzzle = function choosePuzzle(puzzleChose) {
-			console.log(puzzleChose);
+			//	another option for puzzle (DOESN'T WORK WITH THIS ONE YET!)
+			// [
+			// 	[1, 1, 1, 2, 2],
+			// 	[1, 1, 1, 2, 2],
+			// 	[1, 1, 1, 3, 4],
+			// 	[5, 5, 5, 3, 4],
+			// 	[5, 3, 3, 3, 4]
+			// ]
+
+			//	another option for puzzle (DOESN'T WORK WITH THIS ONE YET!)
+			// [
+			// 	[1, 2, 2, 2, 2],
+			// 	[1, 1, 2, 3, 2],
+			// 	[4, 1, 2, 3, 5],
+			// 	[4, 1, 1, 3, 5],
+			// 	[4, 4, 3, 3, 3]
+			// ]
+
+		$s.puzzleChose = $s.availablePuzzles[0];
+
+		$s.choosePuzzle = function choosePuzzle() {
+			loadPuzzle($s.puzzleChose);
 		};
 
-		$s.puzzle = new Puzzle(1);
+		$s.puzzle = {};
 
 		$s.selectedAction = 'rotate';
 		$s.cellStates = ['blank', 'dot', 'tree', 'note'];
@@ -308,7 +295,7 @@ app.controller('ParksController', [
 						loopThroughParks();
 						return false;
 					} else {
-						console.log('park ' + park.color + ' has ' + park.cells.length + ' blank cells');
+						// console.log('park ' + park.color + ' has ' + park.cells.length + ' blank cells');
 					}
 				});
 			}
@@ -316,6 +303,6 @@ app.controller('ParksController', [
 			loopThroughParks();
 		};
 
-		loadPuzzle();
+		loadPuzzle($s.puzzleChose);
 	}
 ]);
