@@ -85,6 +85,15 @@ app.controller('ParksController', [
 					[1, 1, 4, 4, 5],
 					[5, 5, 5, 5, 5]
 				]
+			}, {
+				id: 3,
+				puzzleColors: [
+					[1, 1, 1, 2, 2],
+					[1, 1, 1, 2, 2],
+					[1, 1, 1, 3, 4],
+					[5, 5, 5, 3, 4],
+					[5, 3, 3, 3, 4]
+				]
 			}
 		];
 			//	BLANK PUZZLE TEMPLATE
@@ -195,6 +204,19 @@ app.controller('ParksController', [
 			});
 		}
 
+		function autoDotOrthogonal(park) {
+			var direction = checkOrthogonal(park);
+			var pick = park.cells[0];
+			var cells = $s.puzzle.getCells();
+			if(direction) {
+				_.forEach(cells, function(cell) {
+					if( cell[direction] === pick[direction] && cell.color !== pick.color) {
+						cell.state = cell.state || 'dot';
+					}
+				});
+			}
+		}
+
 		function findCommonality(cell1, cell2) {
 			var commonality = [];
 
@@ -202,16 +224,16 @@ app.controller('ParksController', [
 				commonality.push('row');
 
 				if (Math.abs(cell1.column - cell2.column) === 1) {
-					commonality.push('orthoganallyAdjacent');
+					commonality.push('orthogonallyAdjacent');
 				}
 			} else if (cell1.column === cell2.column) {
 				commonality.push('column');
 
 				if (Math.abs(cell1.row - cell2.row) === 1) {
-					commonality.push('orthoganallyAdjacent');
+					commonality.push('orthogonallyAdjacent');
 				}
 			} else if (Math.abs(cell1.row - cell2.row) + Math.abs(cell1.column - cell2.column) === 2) {
-				commonality.push('diaganallyAdjacent');
+				commonality.push('diagonallyAdjacent');
 			}
 
 			if (cell1.color === cell2.color) {
@@ -237,8 +259,41 @@ app.controller('ParksController', [
 			return lonerCells;
 		}
 
+		function findMiddle(cells) {
+			var sortCells = _.sortBy(cells, ['row', 'column']);
+			return cells[1];
+		}
+
+		function checkOrthogonal(park) {
+			var commonalities;
+			for(var i = 1; i < park.cells.length; i++) {
+				commonalities = _.union(commonalities, findCommonality(park.cells[i - 1], park.cells[i]));
+			}
+			if(_.contains(commonalities, 'diagonallyAdjacent')) {
+				return false;
+			} else {
+				if(_.contains(commonalities, 'row')) {
+					return 'row';
+				} else {
+					return 'column';
+				}
+			}
+		}
+
+		function puzzleSolved(puzzle) {
+			var treeCount = 0;
+
+			_.forEach(puzzle.getCells(), function(cell) {
+				if(cell.state === 'tree') {
+					treeCount++;
+				}
+			});
+
+			return treeCount === puzzle.rows.length;
+		}
+
 		$s.solvePuzzle = function solvePuzzle() {
-			function loopThroughParks() {
+			(function loopThroughParks() {
 				function parkStatusCheck(park) {
 					var parkStatus = 'error';	//	default condition (if all cells have dots);
 					_.forEach(park.cells, function eachCell(cell) {
@@ -264,15 +319,16 @@ app.controller('ParksController', [
 				});
 
 				_.forEach($s.puzzle.parks, function eachPark(park) {
+					var commonalities;
 					if (park.cells.length === 1) {
 						$s.changeState(park.cells[0], 'tree');
 
 						loopThroughParks();
 						return false;
 					} else if (park.cells.length === 2 && !park.processedDuplexAlready) {
-						var commonalities = findCommonality(park.cells[0], park.cells[1]);
+						commonalities = findCommonality(park.cells[0], park.cells[1]);
 
-						if (_.contains(commonalities, 'orthoganallyAdjacent')) {
+						if (_.contains(commonalities, 'orthogonallyAdjacent')) {
 							if (_.contains(commonalities, 'row')) {
 								_.forEach(park.cells, function eachCell(cell) {
 									autoDotNeighbors(cell, 'relative', {x: 0, y: 1});
@@ -288,6 +344,34 @@ app.controller('ParksController', [
 						park.processedDuplexAlready = true;
 						loopThroughParks();
 						return false;
+					} else if (park.cells.length === 3 && !park.processedTripleAlready) {
+						commonalities = _.union(
+							findCommonality(park.cells[0], park.cells[1]), 
+							findCommonality(park.cells[1], park.cells[2]),
+							findCommonality(park.cells[0], park.cells[2])
+						);
+
+						if (_.contains(commonalities, 'diagonallyAdjacent')) {
+							// place dot in missing corner
+						} else {
+							// in a row
+							var cell = findMiddle(park.cells);
+							if (_.contains(commonalities, 'row')) {
+								autoDotNeighbors(cell, 'relative', {x: 0, y: 1});
+								autoDotNeighbors(cell, 'relative', {x: 0, y: -1});
+							} else {	//	same column
+								autoDotNeighbors(cell, 'relative', {x: 1, y: 0});
+								autoDotNeighbors(cell, 'relative', {x: -1, y: 0});
+							}
+						}
+						park.processedTripleAlready = true;
+						loopThroughParks();
+						return false;
+					} else if (checkOrthogonal(park) && !park.processedOrthAlready) {
+						autoDotOrthogonal(park);
+						park.processedOrthAlready = true;
+						loopThroughParks();
+						return false;
 					} else if (findLonerCells(park.cells).length) {
 						_.forEach(findLonerCells(park.cells), function eachLonerCell(cell) {
 							$s.changeState(cell, 'tree');
@@ -298,9 +382,7 @@ app.controller('ParksController', [
 						// console.log('park ' + park.color + ' has ' + park.cells.length + ' blank cells');
 					}
 				});
-			}
-
-			loopThroughParks();
+			})();
 		};
 
 		loadPuzzle($s.puzzleChose);
