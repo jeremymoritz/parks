@@ -30,12 +30,13 @@ app.controller('ParksController', [
 			this.rows = rowsArray || [];
 			this.parks = parksArray || [];
 
-			this.getCells = function getCells() {
+			this.getCells = function getCells(onlyBlanks) {
 				var allCells = [];
 				_.forEach(this.rows, function eachRow(row) {
 					allCells = allCells.concat(row.cells);
 				});
-				return allCells;
+
+				return onlyBlanks ? _.filter(allCells, {state: undefined}) : allCells;
 			};
 
 			return this;
@@ -199,56 +200,55 @@ app.controller('ParksController', [
 			});
 		}
 
-		// function autoDotOrthogonal(park) {
-		// 	var direction = checkOrthogonal(park);
-		// 	var pick = park.cells[0];
-		// 	var cells = $s.puzzle.getCells();
-		// 	if(direction) {
-		// 		_.forEach(cells, function(cell) {
-		// 			if( cell[direction] === pick[direction] && cell.color !== pick.color) {
-		// 				$s.changeState(cell, 'dot', true);
-		// 			}
-		// 		});
-		// 	}
-		// }
+		function autoDotCommon(cells, property) {
+			var allBlankCells = $s.puzzle.getCells(true);
 
-		function findCommonality(cells) {
-			var commonality = [];
+			var diffCellsWithSameProperty = _.filter(allBlankCells, function filterByProperty(cell) {
+				return cell[property] === cells[0].property && !_.contains(cells, cell);
+			});
+
+			_.forEach(diffCellsWithSameProperty, function eachCell(cell) {
+				$s.changeState(cell, 'dot');
+			});
+		}
+
+		function findCommonality(cells, ignoreList) {
+			var commonalities = [];
 
 			if (cells.length === 2) {
 				if (cells[0].row === cells[1].row) {
-					commonality.push('row');
+					commonalities.push('row');
 
 					if (Math.abs(cells[0].column - cells[1].column) === 1) {
-						commonality.push('orthogonallyAdjacent');
+						commonalities.push('orthogonallyAdjacent');
 					}
 				} else if (cells[0].column === cells[1].column) {
-					commonality.push('column');
+					commonalities.push('column');
 
 					if (Math.abs(cells[0].row - cells[1].row) === 1) {
-						commonality.push('orthogonallyAdjacent');
+						commonalities.push('orthogonallyAdjacent');
 					}
 				} else if (Math.abs(cells[0].row - cells[1].row) + Math.abs(cells[0].column - cells[1].column) === 2) {
-					commonality.push('diagonallyAdjacent');
+					commonalities.push('diagonallyAdjacent');
 				}
 
 				if (cells[0].color === cells[1].color) {
-					commonality.push('park');
+					commonalities.push('park');
 				}
 			} else {
 				var possibleCommonalities = ['row', 'column', 'park'];
 				_.forEach(cells, function eachCell(cell) {
-					_.forEach(possibleCommonalities, function eachCommonality(thisCommonality) {
-						if (cell[thisCommonality] !== cells[0][thisCommonality]) {
-							_.pull(possibleCommonalities, thisCommonality);
+					_.forEach(possibleCommonalities, function eachCommonality(commonality) {
+						if (cell[commonality] !== cells[0][commonality]) {
+							_.pull(possibleCommonalities, commonality);
 						}
 					});
 				});
 
-				commonality = possibleCommonalities;
+				commonalities = possibleCommonalities;
 			}
 
-			return commonality;
+			return _.isArray(ignoreList) ? _.difference(commonalities, ignoreList) : commonalities;
 		}
 
 		function findLonerCells(cells) {
@@ -270,22 +270,6 @@ app.controller('ParksController', [
 		// function findMiddle(cells) {
 		// 	var sortCells = _.sortBy(cells, ['row', 'column']);
 		// 	return cells[1];
-		// }
-
-		// function checkOrthogonal(park) {
-		// 	var commonalities;
-		// 	for(var i = 1; i < park.cells.length; i++) {
-		// 		commonalities = _.union(commonalities, findCommonality(park.cells[i - 1], park.cells[i]));
-		// 	}
-		// 	if(_.contains(commonalities, 'diagonallyAdjacent')) {
-		// 		return false;
-		// 	} else {
-		// 		if(_.contains(commonalities, 'row')) {
-		// 			return 'row';
-		// 		} else {
-		// 			return 'column';
-		// 		}
-		// 	}
 		// }
 
 		function puzzleSolved(puzzle) {
@@ -335,10 +319,22 @@ app.controller('ParksController', [
 						});
 						loopThroughParks();
 						return false;
-					} else if (park.cells.length === 2) {
-						commonalities = findCommonality(park.cells);
+					} else {
+						commonalities = findCommonality(park.cells, ['park']);	//	what do ALL of these cells have in common (besides 'park')?
 
-						if (_.contains(commonalities, 'orthogonallyAdjacent') && !park.processedDuplexAlready) {
+						if (_.contains(commonalities, 'row') && !park.processedRowAlready) {	//	if in same row, dot all other cells in that row
+							autoDotCommon(park.cells, 'row');
+							park.processedRowAlready = true;
+							loopThroughParks();
+							return false;
+						} else if (_.contains(commonalities, 'column') && !park.processedColumnAlready) {	//	if in same column, dot all other cells in that column
+							autoDotCommon(park.cells, 'column');
+							park.processedColumnAlready = true;
+							loopThroughParks();
+							return false;
+						}
+
+						if (_.contains(commonalities, 'orthogonallyAdjacent') && !park.processedDuplexAlready) {	//	only happens with duplexes
 							if (_.contains(commonalities, 'row')) {
 								_.forEach(park.cells, function eachCell(cell) {
 									autoDotNeighbors(cell, 'relative', {x: 0, y: 1});
@@ -355,37 +351,39 @@ app.controller('ParksController', [
 							loopThroughParks();
 							return false;
 						}
-					}
-					// } else if (park.cells.length === 3 && !park.processedTripleAlready) {
-					// 	commonalities = _.union(
-					// 		findCommonality(park.cells[0], park.cells[1]),
-					// 		findCommonality(park.cells[1], park.cells[2]),
-					// 		findCommonality(park.cells[0], park.cells[2])
-					// 	);
 
-					// 	if (_.contains(commonalities, 'diagonallyAdjacent')) {
-					// 		// place dot in missing corner
-					// 	} else {
-					// 		// in a row
-					// 		var cell = findMiddle(park.cells);
-					// 		if (_.contains(commonalities, 'row')) {
-					// 			autoDotNeighbors(cell, 'relative', {x: 0, y: 1});
-					// 			autoDotNeighbors(cell, 'relative', {x: 0, y: -1});
-					// 		} else {	//	same column
-					// 			autoDotNeighbors(cell, 'relative', {x: 1, y: 0});
-					// 			autoDotNeighbors(cell, 'relative', {x: -1, y: 0});
-					// 		}
-					// 	}
-					// 	park.processedTripleAlready = true;
-					// 	loopThroughParks();
-					// 	return false;
+						// } else if (park.cells.length === 3) {
+						// 	if (_.contains(commonalities, 'row') && !park.processedDuplexAlready) {
+						//  && !park.processedTripleAlready) {
+						// 	commonalities = _.union(
+						// 		findCommonality(park.cells[0], park.cells[1]),
+						// 		findCommonality(park.cells[1], park.cells[2]),
+						// 		findCommonality(park.cells[0], park.cells[2])
+						// 	);
+
+						// 	if (_.contains(commonalities, 'diagonallyAdjacent')) {
+						// 		// place dot in missing corner
+						// 	} else {
+						// 		// in a row
+						// 		var cell = findMiddle(park.cells);
+						// 		if (_.contains(commonalities, 'row')) {
+						// 			autoDotNeighbors(cell, 'relative', {x: 0, y: 1});
+						// 			autoDotNeighbors(cell, 'relative', {x: 0, y: -1});
+						// 		} else {	//	same column
+						// 			autoDotNeighbors(cell, 'relative', {x: 1, y: 0});
+						// 			autoDotNeighbors(cell, 'relative', {x: -1, y: 0});
+						// 		}
+						// 	}
+						// 	park.processedTripleAlready = true;
+						// 	loopThroughParks();
+						// 	return false;
 					// } else if (checkOrthogonal(park) && !park.processedOrthAlready) {
 					// 	autoDotOrthogonal(park);
 					// 	park.processedOrthAlready = true;
 					// 	loopThroughParks();
 					// 	return false;
-					 else {
-					 	findCommonality(park.cells);
+					// } else {
+					//  	findCommonality(park.cells);
 						// console.log('park ' + park.color + ' has ' + park.cells.length + ' blank cells');
 					}
 				});
