@@ -313,6 +313,19 @@ app.controller('ParksController', [
 				_.forEach($s.puzzle.parks, function eachPark(park) {
 					var commonalities;
 
+					/***********************
+						Notes from this morning (8/15):
+						All state changes get a timestamp
+						After looping through all the parks, we place a check state
+						We loop through all parks again and check if states are equal
+						if they are, we place a flag (which is a tree that is subject)
+						in the smallest park. Then we run our loops again but run a test
+						to see if the puzzle is solved. If the puzzle is not solved and there
+						aren't any more places to put flags, then we yank the earliest flag and
+						all state changes sense that flag are changed back to undefined. Place a 
+						dot where the flag was and move on.
+					************************/
+
 					if (findLonerCells(park.cells).length) {
 						_.forEach(findLonerCells(park.cells), function eachLonerCell(cell) {
 							$s.changeState(cell, 'tree');
