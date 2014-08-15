@@ -96,7 +96,7 @@ app.controller('ParksController', [
 					[5, 3, 3, 3, 4]
 				]
 			}, {
-				id: 4,
+				id: 4,	//	not solved yet
 				puzzleColors: [
 					[1, 2, 2, 2, 2],
 					[1, 1, 2, 3, 2],
@@ -200,11 +200,12 @@ app.controller('ParksController', [
 			});
 		}
 
-		function autoDotCommon(cells, property) {
+		function autoDotCommon(cells, property) {	//	place dots on all cells with the given property in common with the given cells (but not the given cells themselves)
+			//	EXAMPLE: if 3 cells are on the same row (property), this will dot the other cells in that row
 			var allBlankCells = $s.puzzle.getCells(true);
 
 			var diffCellsWithSameProperty = _.filter(allBlankCells, function filterByProperty(cell) {
-				return cell[property] === cells[0].property && !_.contains(cells, cell);
+				return cell[property] === cells[0][property] && !_.contains(cells, cell);
 			});
 
 			_.forEach(diffCellsWithSameProperty, function eachCell(cell) {
@@ -212,7 +213,7 @@ app.controller('ParksController', [
 			});
 		}
 
-		function findCommonality(cells, ignoreList) {
+		function findCommonalities(cells, ignoreList) {
 			var commonalities = [];
 
 			if (cells.length === 2) {
@@ -235,20 +236,23 @@ app.controller('ParksController', [
 				if (cells[0].color === cells[1].color) {
 					commonalities.push('park');
 				}
+
+				return _.isArray(ignoreList) ? _.difference(commonalities, ignoreList) : commonalities;
 			} else {
 				var possibleCommonalities = ['row', 'column', 'park'];
+				possibleCommonalities = _.isArray(ignoreList) ? _.difference(possibleCommonalities, ignoreList) : possibleCommonalities;
+				commonalities = _.clone(possibleCommonalities);
+
 				_.forEach(cells, function eachCell(cell) {
-					_.forEach(possibleCommonalities, function eachCommonality(commonality) {
+					_.forEach(possibleCommonalities, function eachPossibleCommonality(commonality) {
 						if (cell[commonality] !== cells[0][commonality]) {
-							_.pull(possibleCommonalities, commonality);
+							_.pull(commonalities, commonality);
 						}
 					});
 				});
 
-				commonalities = possibleCommonalities;
+				return commonalities;
 			}
-
-			return _.isArray(ignoreList) ? _.difference(commonalities, ignoreList) : commonalities;
 		}
 
 		function findLonerCells(cells) {
@@ -333,7 +337,7 @@ app.controller('ParksController', [
 						loopThroughParks();
 						return false;
 					} else {
-						commonalities = findCommonality(park.cells, ['park']);	//	what do ALL of these cells have in common (besides 'park')?
+						commonalities = findCommonalities(park.cells, ['park']);	//	what do ALL of these cells have in common (besides 'park')?
 
 						if (_.contains(commonalities, 'row') && !park.processedRowAlready) {	//	if in same row, dot all other cells in that row
 							autoDotCommon(park.cells, 'row');
@@ -369,9 +373,9 @@ app.controller('ParksController', [
 						// 	if (_.contains(commonalities, 'row') && !park.processedDuplexAlready) {
 						//  && !park.processedTripleAlready) {
 						// 	commonalities = _.union(
-						// 		findCommonality(park.cells[0], park.cells[1]),
-						// 		findCommonality(park.cells[1], park.cells[2]),
-						// 		findCommonality(park.cells[0], park.cells[2])
+						// 		findCommonalities(park.cells[0], park.cells[1]),
+						// 		findCommonalities(park.cells[1], park.cells[2]),
+						// 		findCommonalities(park.cells[0], park.cells[2])
 						// 	);
 
 						// 	if (_.contains(commonalities, 'diagonallyAdjacent')) {
@@ -396,7 +400,7 @@ app.controller('ParksController', [
 					// 	loopThroughParks();
 					// 	return false;
 					// } else {
-					//  	findCommonality(park.cells);
+					//  	findCommonalities(park.cells);
 						// console.log('park ' + park.color + ' has ' + park.cells.length + ' blank cells');
 					}
 				});
