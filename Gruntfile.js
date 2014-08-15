@@ -43,13 +43,13 @@ module.exports = function(grunt) {
 	// If you run this task all of the example html files and generated documentation will reference the unminified version of Edge UI's css and js
 	grunt.registerTask("dev", [
 		"clean",
-		"jshint",
 		"less:dev",
 		"copy:dev",
 		"replace:dev",
 		"pleeease:dev",
 		"concat:dev",
 		"copy:tests",
+		"jshint",
 		"qunit"
 	]);
 
