@@ -8,6 +8,7 @@ app.controller('ParksController', [
 			this.row = row;
 			this.column = column;
 			this.state = state;
+			this.timestamp = 0;
 
 			return this;
 		}
@@ -144,12 +145,12 @@ app.controller('ParksController', [
 			$s.selectedAction = action;
 		};
 
-		$s.changeState = function changeState(cell, state, blank) {
-			var maintain = blank || false;
+		$s.changeState = function changeState(cell, state) {
 			if (state) {	//	this is set via the solve button only
-				cell.state = !maintain ? state : cell.state || state;
+				cell.state = state;
+				cell.timestamp = new Date().getTime();
 
-				if (state === 'tree') {
+				if (state === 'tree' || state === 'note') {
 					autoDotNeighbors(cell, 'all');
 				}
 			} else if (_.contains($s.cellStates, $s.selectedAction)) {
@@ -195,7 +196,7 @@ app.controller('ParksController', [
 		}
 
 		function autoDotNeighbors(cell, kindsOfNeighbors, relativeCoords) {
-			_.forEach(identifyNeighbors(cell, kindsOfNeighbors, relativeCoords), function eachCell(thisCell) {
+			_.forEach(identifyNeighbors(cell, kindsOfNeighbors, relativeCoords, true), function eachCell(thisCell) {
 				$s.changeState(thisCell, 'dot');
 			});
 		}
@@ -271,16 +272,16 @@ app.controller('ParksController', [
 			return lonerCells;
 		}
 
-		// function findMiddle(cells) {
-		// 	var sortCells = _.sortBy(cells, ['row', 'column']);
-		// 	return cells[1];
-		// }
+		function findLastCell() {
+			cells = $s.puzzle.getCells();
+			return _.max(cells, 'timestamp');
+		}
 
 		function puzzleSolved(puzzle) {
 			var treeCount = 0;
 
 			_.forEach(puzzle.getCells(), function(cell) {
-				if(cell.state === 'tree') {
+				if(cell.state === 'tree' || cell.state === 'note') {
 					treeCount++;
 				}
 			});
@@ -288,8 +289,14 @@ app.controller('ParksController', [
 			return treeCount === puzzle.rows.length;
 		}
 
+		function placeFlag(parks) {
+			$s.changeState(parks[0].cells[0], 'note');
+			$s.solvePuzzle();
+		}
+
 		$s.solvePuzzle = function solvePuzzle() {
 			(function loopThroughParks() {
+				var lastCell = findLastCell();
 				function parkStatusCheck(park) {
 					var parkStatus = 'error';	//	default condition (if all cells have dots);
 					_.forEach(park.cells, function eachCell(cell) {
@@ -404,6 +411,12 @@ app.controller('ParksController', [
 						// console.log('park ' + park.color + ' has ' + park.cells.length + ' blank cells');
 					}
 				});
+				
+				if( lastCell === findLastCell()) {
+					if(!puzzleSolved($s.puzzle)) {
+						placeFlag($s.puzzle.parks);
+					}
+				}
 			})();
 		};
 
