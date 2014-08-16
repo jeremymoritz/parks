@@ -43,7 +43,26 @@ app.controller('ParksController', [
 			return this;
 		}
 
+		function logPuzzleState(puzzle) {
+			var icons = {
+				tree: '¶',
+				dot: '•',
+				note: '¥'
+			};
+
+			_.forEach((puzzle || $s.puzzle).rows, function eachRow(row) {
+				logMessage += "\n";	//	logMessage is set outside
+				_.forEach(row.cells, function eachCell(cell) {
+					logMessage += cell.state ? icons[cell.state] : cell.color.slice(-1);
+				});
+			});
+
+			console.log(logMessage);
+			logMessage = '';	//	reset logMessage
+		}
+
 		var $s = $scope;
+		var logMessage = '';
 
 		function loadPuzzle(newPuzzle) {
 			$s.puzzle = new Puzzle(newPuzzle.id);
@@ -264,7 +283,8 @@ app.controller('ParksController', [
 			}
 
 			_.forEach(cells, function eachCell(cell) {
-				if (isAlone(cell, 'row') || isAlone(cell, 'column') || isAlone(cell, 'park')) {
+				if (isAlone(cell, 'park') || isAlone(cell, 'row') || isAlone(cell, 'column')) {
+					logMessage += 'Loner (' + (isAlone(cell, 'row') ? 'Row' : (isAlone(cell, 'column') ? 'Column' : 'Park')) + ')...';
 					lonerCells.push(cell);	//	this cell is all alone in its row, column, or park! (must be a tree!)
 				}
 			});
@@ -289,14 +309,10 @@ app.controller('ParksController', [
 			return treeCount === puzzle.rows.length;
 		}
 
-		function placeFlag(parks) {
-			$s.changeState(parks[0].cells[0], 'note');
-			$s.solvePuzzle();
-		}
-
 		$s.solvePuzzle = function solvePuzzle() {
 			(function loopThroughParks() {
 				var lastCell = findLastCell();
+				var repeatLoop = false;
 				function parkStatusCheck(park) {
 					var parkStatus = 'error';	//	default condition (if all cells have dots);
 					_.forEach(park.cells, function eachCell(cell) {
@@ -323,42 +339,33 @@ app.controller('ParksController', [
 
 				_.forEach($s.puzzle.parks, function eachPark(park) {
 					var commonalities;
+					var lonerCells = findLonerCells(park.cells);
 
-					/***********************
-						Notes from this morning (8/15):
-						All state changes get a timestamp
-						After looping through all the parks, we place a check state
-						We loop through all parks again and check if states are equal
-						if they are, we place a flag (which is a tree that is subject)
-						in the smallest park. Then we run our loops again but run a test
-						to see if the puzzle is solved. If the puzzle is not solved and there
-						aren't any more places to put flags, then we yank the earliest flag and
-						all state changes sense that flag are changed back to undefined. Place a 
-						dot where the flag was and move on.
-					************************/
-
-					if (findLonerCells(park.cells).length) {
-						_.forEach(findLonerCells(park.cells), function eachLonerCell(cell) {
+					if (lonerCells.length) {
+						_.forEach(lonerCells, function eachLonerCell(cell) {
 							$s.changeState(cell, 'tree');
 						});
-						loopThroughParks();
+						repeatLoop = true;
 						return false;
 					} else {
 						commonalities = findCommonalities(park.cells, ['park']);	//	what do ALL of these cells have in common (besides 'park')?
 
 						if (_.contains(commonalities, 'row') && !park.processedRowAlready) {	//	if in same row, dot all other cells in that row
+							logMessage += 'Single-row park...';
 							autoDotCommon(park.cells, 'row');
 							park.processedRowAlready = true;
-							loopThroughParks();
+							repeatLoop = true;
 							return false;
 						} else if (_.contains(commonalities, 'column') && !park.processedColumnAlready) {	//	if in same column, dot all other cells in that column
+							logMessage += 'Single-column park...';
 							autoDotCommon(park.cells, 'column');
 							park.processedColumnAlready = true;
-							loopThroughParks();
+							repeatLoop = true;
 							return false;
 						}
 
 						if (_.contains(commonalities, 'orthogonallyAdjacent') && !park.processedDuplexAlready) {	//	only happens with duplexes
+							logMessage += 'Duplex...';
 							if (_.contains(commonalities, 'row')) {
 								_.forEach(park.cells, function eachCell(cell) {
 									autoDotNeighbors(cell, 'relative', {x: 0, y: 1});
@@ -372,50 +379,29 @@ app.controller('ParksController', [
 							}
 
 							park.processedDuplexAlready = true;
-							loopThroughParks();
+							repeatLoop = true;
 							return false;
 						}
-
-						// } else if (park.cells.length === 3) {
-						// 	if (_.contains(commonalities, 'row') && !park.processedDuplexAlready) {
-						//  && !park.processedTripleAlready) {
-						// 	commonalities = _.union(
-						// 		findCommonalities(park.cells[0], park.cells[1]),
-						// 		findCommonalities(park.cells[1], park.cells[2]),
-						// 		findCommonalities(park.cells[0], park.cells[2])
-						// 	);
-
-						// 	if (_.contains(commonalities, 'diagonallyAdjacent')) {
-						// 		// place dot in missing corner
-						// 	} else {
-						// 		// in a row
-						// 		var cell = findMiddle(park.cells);
-						// 		if (_.contains(commonalities, 'row')) {
-						// 			autoDotNeighbors(cell, 'relative', {x: 0, y: 1});
-						// 			autoDotNeighbors(cell, 'relative', {x: 0, y: -1});
-						// 		} else {	//	same column
-						// 			autoDotNeighbors(cell, 'relative', {x: 1, y: 0});
-						// 			autoDotNeighbors(cell, 'relative', {x: -1, y: 0});
-						// 		}
-						// 	}
-						// 	park.processedTripleAlready = true;
-						// 	loopThroughParks();
-						// 	return false;
-					// } else if (checkOrthogonal(park) && !park.processedOrthAlready) {
-					// 	autoDotOrthogonal(park);
-					// 	park.processedOrthAlready = true;
-					// 	loopThroughParks();
-					// 	return false;
-					// } else {
-					//  	findCommonalities(park.cells);
-						// console.log('park ' + park.color + ' has ' + park.cells.length + ' blank cells');
 					}
 				});
-				
-				if( lastCell === findLastCell()) {
-					if(!puzzleSolved($s.puzzle)) {
-						placeFlag($s.puzzle.parks);
+
+				if (!repeatLoop) {
+					if (puzzleSolved($s.puzzle)) {
+						_.forEach(_.filter($s.puzzle.getCells(), {state: 'note'}), function eachNoteCell(cell) {
+							$s.changeState(cell, 'tree');
+						});
+
+						console.log('\nPuzzle is solved! Congratulations!\n (... on pressing the big red button :P)\n');
+					} else {
+						// logMessage += 'Guess...';
+						// $s.changeState($s.puzzle.parks[0].cells[1], 'note');
+						// repeatLoop = true;
 					}
+				}
+
+				if (repeatLoop) {
+					logPuzzleState();
+					loopThroughParks();
 				}
 			})();
 		};
@@ -423,3 +409,21 @@ app.controller('ParksController', [
 		loadPuzzle($s.puzzleChose);
 	}
 ]);
+
+
+
+
+
+
+					/***********************
+						Notes from this morning (8/15):
+						All state changes get a timestamp
+						After looping through all the parks, we place a check state
+						We loop through all parks again and check if states are equal
+						if they are, we place a flag (which is a tree that is subject)
+						in the smallest park. Then we run our loops again but run a test
+						to see if the puzzle is solved. If the puzzle is not solved and there
+						aren't any more places to put flags, then we yank the earliest flag and
+						all state changes sense that flag are changed back to undefined. Place a
+						dot where the flag was and move on.
+					************************/
