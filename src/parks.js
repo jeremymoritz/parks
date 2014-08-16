@@ -3,12 +3,12 @@ var app = angular.module('ParksApp', []);
 app.controller('ParksController', [
 	'$scope',
 	function ParksController($scope) {
-		function Cell(color, row, column, state) {
+		function Cell(color, row, column, state, timestamp) {
 			this.color = color;
 			this.row = row;
 			this.column = column;
-			this.state = state;
-			this.timestamp = 0;
+			this.state = state || 'blank';
+			this.timestamp = timestamp || new Date().getTime();
 
 			return this;
 		}
@@ -19,41 +19,122 @@ app.controller('ParksController', [
 			return this;
 		}
 
-		function Park(color, cellsArray) {
-			this.color = color;
+		function Column(cellsArray) {
 			this.cells = cellsArray || [];
 
 			return this;
 		}
 
-		function Puzzle(id, rowsArray, parksArray) {
-			this.id = id;
-			this.rows = rowsArray || [];
-			this.parks = parksArray || [];
+		function Park(cellsArray) {
+			this.cells = cellsArray || [];
 
-			this.getCells = function getCells(onlyBlanks) {
-				var allCells = [];
-				_.forEach(this.rows, function eachRow(row) {
-					allCells = allCells.concat(row.cells);
-				});
-
-				return onlyBlanks ? _.filter(allCells, {state: undefined}) : allCells;
+			this.getColor = function getColor() {
+				return this.cells.length ? this.cells[0].color : undefined;	//	any cell in this park will have the same color
 			};
 
 			return this;
 		}
 
-		function logPuzzleState(puzzle) {
+		function Puzzle(id, cellsArray) {
+			this.id = id;
+			this.cells = cellsArray || [];
+			this.rows = [];
+
+			this.getCells = function getCells(stateOnly) {
+				if (stateOnly) {
+					if (_.isArray(stateOnly)) {	//	array of states (e.g. ['tree', 'note'])
+						return _.filter(this.cells, function filterToOnlyThisState(cell) {
+							return _.contains(stateOnly, cell.state);
+						});
+					}
+
+					return _.filter(this.cells, {state: stateOnly});	//	assume it's a string (e.g. 'blank')
+				}
+				return this.cells;
+			};
+
+			this.getRows = function getRows() {
+				if (this.rows.length) {
+					return this.rows;
+				}
+				var rows = this.rows;
+
+				_.forEach(this.cells, function eachCell(cell) {
+					if (!rows[cell.row]) {
+						rows[cell.row] = new Row();
+					}
+
+					rows[cell.row].cells.push(cell);
+				});
+				return rows;
+			};
+
+			this.getColumns = function getColumns() {
+				var columns = [];
+
+				_.forEach(this.cells, function eachCell(cell) {
+					if (!columns[cell.column]) {
+						columns[cell.column] = new Column();
+					}
+
+					columns[cell.column].cells.push(cell);
+				});
+				return columns;
+			};
+
+			this.getParks = function getParks(onlyBlanks, includeSolvedParks, sortFunction) {
+				var parks = [];
+
+				_.forEach(this.cells, function eachCell(cell) {
+					var thisColorPark = _.find(parks, function matchColor(park) {
+						return park.getColor() === cell.color;
+					});
+					if (!thisColorPark) {
+						parks.push(new Park([cell]));
+					} else {
+						_.find(parks, function matchColor(park) {
+							return park.getColor() === cell.color;
+						}).cells.push(cell);	//	find the matching park and put the cell into it
+					}
+				});
+
+				if (onlyBlanks) {
+					_.forEach(parks, function eachPark(park) {
+						park.cells = _.filter(park.cells, function filterOutNonBlanks(cell) {
+							return cell.state === 'blank';
+						});
+					});
+				}
+
+				if (!includeSolvedParks) {
+					parks = _.filter(parks, function eachPark(park) {
+						return park.cells.length;
+					});
+				}
+
+				if (!_.isFunction(sortFunction)) {
+					sortFunction = function sortByNumberOfCells(park) {
+						return park.cells.length;	//	sort parks in order of the number of cells of each color (smallest parks first);
+					};
+				}
+
+				return _.sortBy(parks, sortFunction);
+			};
+
+			return this;
+		}
+
+		function logPuzzleState() {
 			var icons = {
 				tree: '¶',
 				dot: '•',
 				note: '¥'
 			};
 
-			_.forEach((puzzle || $s.puzzle).rows, function eachRow(row) {
+			_.forEach($s.puzzle.getRows(), function eachRow(row) {
 				logMessage += "\n";	//	logMessage is set outside
 				_.forEach(row.cells, function eachCell(cell) {
-					logMessage += cell.state ? icons[cell.state] : cell.color.slice(-1);
+					logMessage += icons[cell.state] ? icons[cell.state] : cell.color.slice(-1);
 				});
 			});
 
@@ -63,6 +144,7 @@ app.controller('ParksController', [
 
 		var $s = $scope;
 		var logMessage = '';
+		var nrpLog = [];	//	Non-Repeatable Processes Log (avoid infinite loops)
 
 		function loadPuzzle(newPuzzle) {
 			$s.puzzle = new Puzzle(newPuzzle.id);
@@ -72,17 +154,8 @@ app.controller('ParksController', [
 
 			//	Fill puzzle with cells and those cells' colors
 			for (var i = 0; i < gridSize; i++) {
-				$s.puzzle.rows.push(new Row());
-
 				for (var j = 0; j < gridSize; j++) {
-					var colorName = 'color' + puzzleColors[i][j];
-					var thisCell = new Cell(colorName, i, j);
-					$s.puzzle.rows[i].cells.push(thisCell);
-
-					if (!_.some($s.puzzle.parks, {color: colorName})) {	//	if there are no parks with this color
-						$s.puzzle.parks.push(new Park(colorName));	//	add the park
-					}
-					_.find($s.puzzle.parks, {color: colorName}).cells.push(thisCell);	//	add this cell to the park
+					$s.puzzle.cells.push(new Cell('color' + puzzleColors[i][j], i, j));
 				}
 			}
 		}
@@ -167,15 +240,20 @@ app.controller('ParksController', [
 		$s.changeState = function changeState(cell, state) {
 			if (state) {	//	this is set via the solve button only
 				cell.state = state;
-				cell.timestamp = new Date().getTime();
+				var time = new Date().getTime();
+				cell.timestamp = time;
 
-				if (state === 'tree' || state === 'note') {
+				switch(state) {
+				case 'note':
+					while(time === new Date().getTime()) {} // wait up to one millisecond, then fall through
+				case 'tree':
 					autoDotNeighbors(cell, 'all');
+					break;
 				}
-			} else if (_.contains($s.cellStates, $s.selectedAction)) {
+			} else if (_.contains($s.cellStates, $s.selectedAction)) {	//	human only
 				cell.state = $s.selectedAction;
-			} else {	//	the rotate option is on
-				cell.state = (cell.state === 'dot' ? 'tree' : (cell.state === 'tree' ? undefined : 'dot'));
+			} else {	//	the rotate option is on (human only)
+				cell.state = (cell.state === 'dot' ? 'tree' : (cell.state === 'tree' ? 'blank' : 'dot'));
 			}
 		};
 
@@ -208,7 +286,7 @@ app.controller('ParksController', [
 			}
 
 			if (onlyBlanks) {
-				neighbors = _.filter(neighbors, {state: undefined});
+				neighbors = _.filter(neighbors, {state: 'blank'});
 			}
 
 			return _.pull(neighbors, primaryCell);
@@ -222,7 +300,7 @@ app.controller('ParksController', [
 
 		function autoDotCommon(cells, property) {	//	place dots on all cells with the given property in common with the given cells (but not the given cells themselves)
 			//	EXAMPLE: if 3 cells are on the same row (property), this will dot the other cells in that row
-			var allBlankCells = $s.puzzle.getCells(true);
+			var allBlankCells = $s.puzzle.getCells('blank');
 
 			var diffCellsWithSameProperty = _.filter(allBlankCells, function filterByProperty(cell) {
 				return cell[property] === cells[0][property] && !_.contains(cells, cell);
@@ -292,79 +370,51 @@ app.controller('ParksController', [
 			return lonerCells;
 		}
 
-		function findLastCell() {
-			cells = $s.puzzle.getCells();
-			return _.max(cells, 'timestamp');
+		function puzzleSolved() {
+			return $s.puzzle.getCells(['tree', 'note']).length === Math.sqrt($s.puzzle.cells.length);
 		}
 
-		function puzzleSolved(puzzle) {
-			var treeCount = 0;
+		function sanityCheck() {
+			function allSameState(cellCollections, stateToCheckFor) {
+				var allSame = true;
+				_.forEach(cellCollections, function eachCollection(cellCollection) {
+					allSame = _.every(cellCollection.cells, {state: stateToCheckFor}) ? allSame : false;
+				});
+				return allSame;
+			}
 
-			_.forEach(puzzle.getCells(), function(cell) {
-				if(cell.state === 'tree' || cell.state === 'note') {
-					treeCount++;
-				}
-			});
-
-			return treeCount === puzzle.rows.length;
+			return !(allSameState($s.puzzle.getParks(), 'dot') || allSameState($s.puzzle.getRows(), 'dot') || allSameState($s.puzzle.getColumns(), 'dot'));
 		}
 
 		$s.solvePuzzle = function solvePuzzle() {
 			(function loopThroughParks() {
-				var lastCell = findLastCell();
 				var repeatLoop = false;
-				function parkStatusCheck(park) {
-					var parkStatus = 'error';	//	default condition (if all cells have dots);
-					_.forEach(park.cells, function eachCell(cell) {
-						if (cell.state === 'tree') {
-							parkStatus = 'solved';
-							return false;
-						} else if (_.isUndefined(cell.state)) {
-							parkStatus = 'unsolved';
-							return false;
-						}
-					});
-					return parkStatus;
-				}
-
-				$s.puzzle.parks = _.filter($s.puzzle.parks, function filterOutSolvedParks(park) {	//	only unsolved parks
-					return parkStatusCheck(park) === 'unsolved';
-				});
-				_.forEach($s.puzzle.parks, function filterOutDots(park) {	//	only the blank cells
-					park.cells = _.filter(park.cells, {state: undefined});
-				});
-				$s.puzzle.parks = _.sortBy($s.puzzle.parks, function compareCellLength(park) {
-					return park.cells.length;	//	sort parks in order of the number of cells of each color (smallest parks first);
-				});
-
-				_.forEach($s.puzzle.parks, function eachPark(park) {
+				_.forEach($s.puzzle.getParks(true), function eachPark(park) {
 					var commonalities;
 					var lonerCells = findLonerCells(park.cells);
 
 					if (lonerCells.length) {
-						_.forEach(lonerCells, function eachLonerCell(cell) {
-							$s.changeState(cell, 'tree');
-						});
+						$s.changeState(lonerCells[0], 'tree');
 						repeatLoop = true;
 						return false;
 					} else {
 						commonalities = findCommonalities(park.cells, ['park']);	//	what do ALL of these cells have in common (besides 'park')?
 
-						if (_.contains(commonalities, 'row') && !park.processedRowAlready) {	//	if in same row, dot all other cells in that row
+						if (_.contains(commonalities, 'row') && !_.contains(nrpLog, 'autoDotRow' + park.getColor())) {	//	if in same row, dot all other cells in that row
 							logMessage += 'Single-row park...';
 							autoDotCommon(park.cells, 'row');
-							park.processedRowAlready = true;
+							nrpLog.push('autoDotRow' + park.getColor());
 							repeatLoop = true;
 							return false;
-						} else if (_.contains(commonalities, 'column') && !park.processedColumnAlready) {	//	if in same column, dot all other cells in that column
+						} else if (_.contains(commonalities, 'column') && !_.contains(nrpLog, 'autoDotColumn' + park.getColor())) {	//	if in same column, dot all other cells in that column
 							logMessage += 'Single-column park...';
 							autoDotCommon(park.cells, 'column');
-							park.processedColumnAlready = true;
+							nrpLog.push('autoDotColumn' + park.getColor());
 							repeatLoop = true;
 							return false;
 						}
 
-						if (_.contains(commonalities, 'orthogonallyAdjacent') && !park.processedDuplexAlready) {	//	only happens with duplexes
+						if (_.contains(commonalities, 'orthogonallyAdjacent') && !_.contains(nrpLog, 'duplex' + park.getColor())) {	//	only happens with duplexes
 							logMessage += 'Duplex...';
 							if (_.contains(commonalities, 'row')) {
 								_.forEach(park.cells, function eachCell(cell) {
@@ -378,7 +428,7 @@ app.controller('ParksController', [
 								});
 							}
 
-							park.processedDuplexAlready = true;
+							nrpLog.push('duplex' + park.getColor());
 							repeatLoop = true;
 							return false;
 						}
@@ -386,16 +436,30 @@ app.controller('ParksController', [
 				});
 
 				if (!repeatLoop) {
-					if (puzzleSolved($s.puzzle)) {
+					if (puzzleSolved()) {
 						_.forEach(_.filter($s.puzzle.getCells(), {state: 'note'}), function eachNoteCell(cell) {
 							$s.changeState(cell, 'tree');
 						});
 
 						console.log('\nPuzzle is solved! Congratulations!\n (... on pressing the big red button :P)\n');
 					} else {
-						// logMessage += 'Guess...';
-						// $s.changeState($s.puzzle.parks[0].cells[1], 'note');
-						// repeatLoop = true;
+						logMessage += 'Guess...';
+
+						if (sanityCheck()) {
+							$s.changeState($s.puzzle.getParks(true)[0].cells[1], 'note');
+							repeatLoop = true;
+						} else {
+							//	puzzle is in error, our last note is wrong.  Let's fix it.
+							var latestNote = _.max($s.puzzle.getCells('note'), 'timestamp');
+							var cellsAfterLastNote = _.filter($s.puzzle.getCells(), function cellFilter(cell) {
+								return cell.timestamp > latestNote.timestamp;
+							});
+							_.forEach(cellsAfterLastNote, function eachCell(cell) {
+								$s.changeState(cell, 'blank');
+							});
+							$s.changeState(latestNote, 'dot');
+							repeatLoop = true;
+						}
 					}
 				}
 
@@ -409,21 +473,3 @@ app.controller('ParksController', [
 		loadPuzzle($s.puzzleChose);
 	}
 ]);
-
-
-
-
-
-
-					/***********************
-						Notes from this morning (8/15):
-						All state changes get a timestamp
-						After looping through all the parks, we place a check state
-						We loop through all parks again and check if states are equal
-						if they are, we place a flag (which is a tree that is subject)
-						in the smallest park. Then we run our loops again but run a test
-						to see if the puzzle is solved. If the puzzle is not solved and there
-						aren't any more places to put flags, then we yank the earliest flag and
-						all state changes sense that flag are changed back to undefined. Place a
-						dot where the flag was and move on.
-					************************/

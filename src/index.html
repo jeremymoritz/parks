@@ -15,7 +15,7 @@
 				<table>
 					<caption>Puzzle No. {{puzzle.id}}</caption>
 					<tbody>
-						<tr ng-repeat="row in puzzle.rows">
+						<tr ng-repeat="row in puzzle.getRows()">
 							<td ng-repeat="cell in row.cells"
 								ng-class="cell.color"
 								ng-click="changeState(cell)">
