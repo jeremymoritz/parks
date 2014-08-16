@@ -132,7 +132,7 @@ app.controller('ParksController', [
 			};
 
 			_.forEach($s.puzzle.getRows(), function eachRow(row) {
-				logMessage += "\n";	//	logMessage is set outside
+				logMessage += '\n';	//	logMessage is set outside
 				_.forEach(row.cells, function eachCell(cell) {
 					logMessage += icons[cell.state] ? icons[cell.state] : cell.color.slice(-1);
 				});
@@ -149,8 +149,7 @@ app.controller('ParksController', [
 		function loadPuzzle(newPuzzle) {
 			$s.puzzle = new Puzzle(newPuzzle.id);
 			var puzzleColors = newPuzzle.puzzleColors;
-
-			var gridSize = 5;	//	5x5 puzzle
+			var gridSize = newPuzzle.puzzleColors.length;
 
 			//	Fill puzzle with cells and those cells' colors
 			for (var i = 0; i < gridSize; i++) {
@@ -189,7 +188,7 @@ app.controller('ParksController', [
 					[5, 3, 3, 3, 4]
 				]
 			}, {
-				id: 4,	//	not solved yet
+				id: 4,
 				puzzleColors: [
 					[1, 2, 2, 2, 2],
 					[1, 1, 2, 3, 2],
@@ -197,11 +196,67 @@ app.controller('ParksController', [
 					[4, 1, 1, 3, 5],
 					[4, 4, 3, 3, 3]
 				]
+			}, {
+				id: 5,
+				puzzleColors: [
+					[1, 1, 2, 2, 2, 2],
+					[1, 1, 1, 2, 2, 2],
+					[1, 1, 1, 1, 3, 2],
+					[4, 1, 1, 3, 3, 3],
+					[4, 5, 5, 5, 6, 3],
+					[4, 4, 5, 5, 6, 6]
+				]
+			}, {
+				id: 6,
+				puzzleColors: [
+					[1, 1, 2, 2, 3, 3, 4],
+					[1, 1, 2, 2, 3, 3, 3],
+					[5, 5, 5, 2, 3, 6, 6],
+					[5, 5, 5, 2, 3, 6, 6],
+					[5, 5, 3, 3, 3, 6, 6],
+					[5, 5, 7, 7, 7, 6, 6],
+					[7, 7, 7, 7, 7, 7, 7]
+				]
+			}, {
+				id: 7,
+				puzzleColors: [
+					[1, 1, 1, 1, 1, 2, 2],
+					[3, 1, 1, 1, 2, 2, 4],
+					[3, 1, 5, 5, 6, 4, 4],
+					[3, 1, 5, 6, 6, 7, 4],
+					[3, 1, 5, 3, 7, 7, 4],
+					[3, 3, 3, 3, 7, 4, 4],
+					[3, 3, 3, 4, 4, 4, 4]
+				]
+			}, {
+				id: 8,
+				puzzleColors: [
+					[1, 1, 1, 1, 1, 1, 1, 2],
+					[1, 3, 3, 4, 4, 4, 1, 2],
+					[1, 3, 3, 4, 3, 4, 2, 2],
+					[1, 3, 3, 3, 3, 3, 2, 5],
+					[3, 3, 3, 6, 3, 3, 3, 5],
+					[3, 3, 6, 6, 3, 3, 5, 5],
+					[3, 6, 6, 6, 7, 8, 5, 8],
+					[3, 6, 6, 7, 7, 8, 8, 8]
+				]
+			}, {
+				id: 9,
+				puzzleColors: [
+					[1, 1, 1, 1, 2, 2, 2, 2],
+					[1, 1, 2, 1, 2, 2, 2, 3],
+					[1, 1, 2, 2, 2, 2, 3, 3],
+					[1, 1, 1, 1, 4, 3, 3, 5],
+					[6, 1, 4, 4, 4, 5, 5, 5],
+					[6, 4, 4, 4, 4, 4, 7, 5],
+					[6, 6, 8, 8, 4, 4, 7, 5],
+					[6, 8, 8, 7, 7, 7, 7, 5]
+				]
 			}
 		];
 				//	BLANK PUZZLE TEMPLATE
 				// {
-				// 	id: ,
+				// 	id: #,	
 				// 	puzzleColors: [
 				// 		[, , , , ],
 				// 		[, , , , ],
@@ -245,7 +300,8 @@ app.controller('ParksController', [
 
 				switch(state) {
 				case 'note':
-					while(time === new Date().getTime()) {} // wait up to one millisecond, then fall through
+					while(time === new Date().getTime()) {} // wait up to one millisecond, then 
+						/* fall through */						
 				case 'tree':
 					autoDotNeighbors(cell, 'all');
 					break;
@@ -378,7 +434,10 @@ app.controller('ParksController', [
 			function allSameState(cellCollections, stateToCheckFor) {
 				var allSame = true;
 				_.forEach(cellCollections, function eachCollection(cellCollection) {
-					allSame = _.every(cellCollection.cells, {state: stateToCheckFor}) ? allSame : false;
+					allSame = _.every(cellCollection.cells, {state: stateToCheckFor});
+					if(allSame) {
+						return false;
+					}
 				});
 				return allSame;
 			}
@@ -443,12 +502,12 @@ app.controller('ParksController', [
 
 						console.log('\nPuzzle is solved! Congratulations!\n (... on pressing the big red button :P)\n');
 					} else {
-						logMessage += 'Guess...';
-
 						if (sanityCheck()) {
-							$s.changeState($s.puzzle.getParks(true)[0].cells[1], 'note');
+							logMessage += 'Guess...';
+							$s.changeState($s.puzzle.getParks(true)[0].cells[0], 'note');
 							repeatLoop = true;
 						} else {
+							logMessage += 'Pull the latest note...';
 							//	puzzle is in error, our last note is wrong.  Let's fix it.
 							var latestNote = _.max($s.puzzle.getCells('note'), 'timestamp');
 							var cellsAfterLastNote = _.filter($s.puzzle.getCells(), function cellFilter(cell) {
