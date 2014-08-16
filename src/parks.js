@@ -139,22 +139,26 @@ app.controller('ParksController', [
 			});
 
 			console.log(logMessage);
+			steps++;
 			logMessage = '';	//	reset logMessage
 		}
 
 		var $s = $scope;
-		var logMessage = '';
-		var nrpLog = [];	//	Non-Repeatable Processes Log (avoid infinite loops)
+		var logMessage;
+		var nrpLog;
+		var steps;
 
 		function loadPuzzle(newPuzzle) {
 			$s.puzzle = new Puzzle(newPuzzle.id);
-			var puzzleColors = newPuzzle.puzzleColors;
 			var gridSize = newPuzzle.puzzleColors.length;
+			steps = 0;
+			nrpLog = [];	//	Non-Repeatable Processes Log (avoid infinite loops)
+			logMessage = '';
 
 			//	Fill puzzle with cells and those cells' colors
 			for (var i = 0; i < gridSize; i++) {
 				for (var j = 0; j < gridSize; j++) {
-					$s.puzzle.cells.push(new Cell('color' + puzzleColors[i][j], i, j));
+					$s.puzzle.cells.push(new Cell('color' + newPuzzle.puzzleColors[i][j], i, j));
 				}
 			}
 		}
@@ -256,7 +260,7 @@ app.controller('ParksController', [
 		];
 				//	BLANK PUZZLE TEMPLATE
 				// {
-				// 	id: #,	
+				// 	id: #,
 				// 	puzzleColors: [
 				// 		[, , , , ],
 				// 		[, , , , ],
@@ -265,9 +269,6 @@ app.controller('ParksController', [
 				// 		[, , , , ]
 				// 	]
 				// }
-
-			//	another option for puzzle (DOESN'T WORK WITH THIS ONE YET!)
-
 
 		$s.puzzleChose = $s.availablePuzzles[0];
 
@@ -300,8 +301,8 @@ app.controller('ParksController', [
 
 				switch(state) {
 				case 'note':
-					while(time === new Date().getTime()) {} // wait up to one millisecond, then 
-						/* fall through */						
+					while(time === new Date().getTime()) {} // wait up to one millisecond, then
+						/* fall through */
 				case 'tree':
 					autoDotNeighbors(cell, 'all');
 					break;
@@ -446,6 +447,7 @@ app.controller('ParksController', [
 		}
 
 		$s.solvePuzzle = function solvePuzzle() {
+			var startTime = new Date().getTime();
 			(function loopThroughParks() {
 				var repeatLoop = false;
 				_.forEach($s.puzzle.getParks(true), function eachPark(park) {
@@ -499,8 +501,9 @@ app.controller('ParksController', [
 						_.forEach(_.filter($s.puzzle.getCells(), {state: 'note'}), function eachNoteCell(cell) {
 							$s.changeState(cell, 'tree');
 						});
-
 						console.log('\nPuzzle is solved! Congratulations!\n (... on pressing the big red button :P)\n');
+						console.log('Total time taken: ' + ((new Date().getTime() - startTime) / 1000) + ' seconds');
+						console.log('Total steps taken: ' + steps);
 					} else {
 						if (sanityCheck()) {
 							logMessage += 'Guess...';
