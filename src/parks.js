@@ -2,7 +2,8 @@ var app = angular.module('ParksApp', []);
 
 app.controller('ParksController', [
 	'$scope',
-	function ParksController($scope) {
+	'PuzzleFactory',
+	function ParksController($scope, PuzzleFactory) {
 		function Cell(color, row, column, state, timestamp) {
 			this.color = color;
 			this.row = row;
@@ -39,6 +40,7 @@ app.controller('ParksController', [
 			this.id = id;
 			this.cells = cellsArray || [];
 			this.rows = [];
+			this.treeCount = 1;
 
 			this.getCells = function getCells(stateOnly) {
 				if (stateOnly) {
@@ -154,6 +156,7 @@ app.controller('ParksController', [
 			steps = 0;
 			nrpLog = [];	//	Non-Repeatable Processes Log (avoid infinite loops)
 			logMessage = '';
+			$s.puzzle.treeCount = gridSize > 8 ? 2 : 1;
 
 			//	Fill puzzle with cells and those cells' colors
 			for (var i = 0; i < gridSize; i++) {
@@ -163,112 +166,7 @@ app.controller('ParksController', [
 			}
 		}
 
-		$s.availablePuzzles = [
-			{
-				id: 1,
-				puzzleColors: [
-					[1, 1, 1, 1, 2],
-					[2, 2, 2, 2, 2],
-					[2, 2, 3, 4, 4],
-					[3, 3, 3, 3, 3],
-					[3, 3, 5, 3, 3]
-				]
-			}, {
-				id: 2,
-				puzzleColors: [
-					[1, 1, 1, 2, 2],
-					[1, 1, 1, 1, 3],
-					[1, 1, 3, 3, 3],
-					[1, 1, 4, 4, 5],
-					[5, 5, 5, 5, 5]
-				]
-			}, {
-				id: 3,
-				puzzleColors: [
-					[1, 1, 1, 2, 2],
-					[1, 1, 1, 2, 2],
-					[1, 1, 1, 3, 4],
-					[5, 5, 5, 3, 4],
-					[5, 3, 3, 3, 4]
-				]
-			}, {
-				id: 4,
-				puzzleColors: [
-					[1, 2, 2, 2, 2],
-					[1, 1, 2, 3, 2],
-					[4, 1, 2, 3, 5],
-					[4, 1, 1, 3, 5],
-					[4, 4, 3, 3, 3]
-				]
-			}, {
-				id: 5,
-				puzzleColors: [
-					[1, 1, 2, 2, 2, 2],
-					[1, 1, 1, 2, 2, 2],
-					[1, 1, 1, 1, 3, 2],
-					[4, 1, 1, 3, 3, 3],
-					[4, 5, 5, 5, 6, 3],
-					[4, 4, 5, 5, 6, 6]
-				]
-			}, {
-				id: 6,
-				puzzleColors: [
-					[1, 1, 2, 2, 3, 3, 4],
-					[1, 1, 2, 2, 3, 3, 3],
-					[5, 5, 5, 2, 3, 6, 6],
-					[5, 5, 5, 2, 3, 6, 6],
-					[5, 5, 3, 3, 3, 6, 6],
-					[5, 5, 7, 7, 7, 6, 6],
-					[7, 7, 7, 7, 7, 7, 7]
-				]
-			}, {
-				id: 7,
-				puzzleColors: [
-					[1, 1, 1, 1, 1, 2, 2],
-					[3, 1, 1, 1, 2, 2, 4],
-					[3, 1, 5, 5, 6, 4, 4],
-					[3, 1, 5, 6, 6, 7, 4],
-					[3, 1, 5, 3, 7, 7, 4],
-					[3, 3, 3, 3, 7, 4, 4],
-					[3, 3, 3, 4, 4, 4, 4]
-				]
-			}, {
-				id: 8,
-				puzzleColors: [
-					[1, 1, 1, 1, 1, 1, 1, 2],
-					[1, 3, 3, 4, 4, 4, 1, 2],
-					[1, 3, 3, 4, 3, 4, 2, 2],
-					[1, 3, 3, 3, 3, 3, 2, 5],
-					[3, 3, 3, 6, 3, 3, 3, 5],
-					[3, 3, 6, 6, 3, 3, 5, 5],
-					[3, 6, 6, 6, 7, 8, 5, 8],
-					[3, 6, 6, 7, 7, 8, 8, 8]
-				]
-			}, {
-				id: 9,
-				puzzleColors: [
-					[1, 1, 1, 1, 2, 2, 2, 2],
-					[1, 1, 2, 1, 2, 2, 2, 3],
-					[1, 1, 2, 2, 2, 2, 3, 3],
-					[1, 1, 1, 1, 4, 3, 3, 5],
-					[6, 1, 4, 4, 4, 5, 5, 5],
-					[6, 4, 4, 4, 4, 4, 7, 5],
-					[6, 6, 8, 8, 4, 4, 7, 5],
-					[6, 8, 8, 7, 7, 7, 7, 5]
-				]
-			}
-		];
-				//	BLANK PUZZLE TEMPLATE
-				// {
-				// 	id: #,
-				// 	puzzleColors: [
-				// 		[, , , , ],
-				// 		[, , , , ],
-				// 		[, , , , ],
-				// 		[, , , , ],
-				// 		[, , , , ]
-				// 	]
-				// }
+		$s.availablePuzzles = PuzzleFactory.getAllPuzzles();
 
 		$s.puzzleChose = $s.availablePuzzles[0];
 
@@ -316,18 +214,26 @@ app.controller('ParksController', [
 
 		function identifyNeighbors(primaryCell, kindsOfNeighbors, relativeCoords, onlyBlanks) {
 			var neighborsObj = {
-				row: _.where($s.puzzle.getCells(), {row: primaryCell.row}),
-				column: _.where($s.puzzle.getCells(), {column: primaryCell.column}),
-				park: _.where($s.puzzle.getCells(), {color: primaryCell.color}),
-				diagonallyAdjacent: _.where($s.puzzle.getCells(), function matchDiagonallyAdjacentNeighbors(cellToCheck) {
-					return Math.abs(cellToCheck.row - primaryCell.row) + Math.abs(cellToCheck.column - primaryCell.column) === 2;
+				diagonallyAdjacent: _.filter($s.puzzle.getCells(), function matchDiagonallyAdjacentNeighbors(cellToCheck) {
+					return Math.abs(cellToCheck.row - primaryCell.row) + Math.abs(cellToCheck.column - primaryCell.column) === 2 && cellToCheck.row !== primaryCell.row && cellToCheck.column !== primaryCell.column;
 				}),
-				relative: _.where($s.puzzle.getCells(), function matchRelative(cellToCheck) {
+				orthogonallyAdjacent: _.filter($s.puzzle.getCells(), function matchDiagonallyAdjacentNeighbors(cellToCheck) {
+					return (Math.abs(cellToCheck.row - primaryCell.row) === 1 && cellToCheck.column === primaryCell.column) || (Math.abs(cellToCheck.column - primaryCell.column) === 1 && cellToCheck.row === primaryCell.row);
+				}),
+				relative: _.filter($s.puzzle.getCells(), function matchRelative(cellToCheck) {
 					if (relativeCoords) {
 						return cellToCheck.row === primaryCell.row + relativeCoords.y && cellToCheck.column === primaryCell.column + relativeCoords.x;
 					}
 				})
 			};
+
+			if ($s.puzzle.treeCount === 1) {
+				_.assign(neighborsObj, {
+					row: _.where($s.puzzle.getCells(), {row: primaryCell.row}),
+					column: _.where($s.puzzle.getCells(), {column: primaryCell.column}),
+					park: _.where($s.puzzle.getCells(), {color: primaryCell.color})
+				});
+			}
 
 			var neighbors = [];
 			if (kindsOfNeighbors === 'all') {
@@ -428,89 +334,99 @@ app.controller('ParksController', [
 		}
 
 		function puzzleSolved() {
-			return $s.puzzle.getCells(['tree', 'note']).length === Math.sqrt($s.puzzle.cells.length);
+			if (sanityCheck()) {
+				return $s.puzzle.getCells(['tree', 'note']).length === (Math.sqrt($s.puzzle.cells.length) * $s.puzzle.treeCount);
+			}
+			return false;
 		}
 
 		function sanityCheck() {
-			function allSameState(cellCollections, stateToCheckFor) {
-				var allSame = true;
+			var treeCount = $s.puzzle.treeCount;
+			function allSameState(cellCollections) {
+				var allBad = false;
 				_.forEach(cellCollections, function eachCollection(cellCollection) {
-					allSame = _.every(cellCollection.cells, {state: stateToCheckFor});
-					if(allSame) {
+					var blanks = _.where(cellCollection.cells, {state: 'blank'});
+					var checkCount = _.where(cellCollection.cells, {state: 'tree'}).length + _.where(cellCollection.cells, {state: 'note'}).length;
+					if((checkCount < treeCount && !blanks.length) || checkCount > treeCount) {
+						allBad = true;
 						return false;
 					}
 				});
-				return allSame;
+				return allBad;
 			}
 
-			return !(allSameState($s.puzzle.getParks(), 'dot') || allSameState($s.puzzle.getRows(), 'dot') || allSameState($s.puzzle.getColumns(), 'dot'));
+			return !(allSameState($s.puzzle.getParks()) || allSameState($s.puzzle.getRows()) || allSameState($s.puzzle.getColumns()));
 		}
 
 		$s.solvePuzzle = function solvePuzzle() {
 			var startTime = new Date().getTime();
 			(function loopThroughParks() {
 				var repeatLoop = false;
-				_.forEach($s.puzzle.getParks(true), function eachPark(park) {
-					var commonalities;
-					var lonerCells = findLonerCells(park.cells);
+				if ($s.puzzle.treeCount === 1) {
+					_.forEach($s.puzzle.getParks(true), function eachPark(park) {
+						var commonalities;
+						var lonerCells = findLonerCells(park.cells);
 
-					if (lonerCells.length) {
-						$s.changeState(lonerCells[0], 'tree');
-						repeatLoop = true;
-						return false;
-					} else {
-						commonalities = findCommonalities(park.cells, ['park']);	//	what do ALL of these cells have in common (besides 'park')?
-
-						if (_.contains(commonalities, 'row') && !_.contains(nrpLog, 'autoDotRow' + park.getColor())) {	//	if in same row, dot all other cells in that row
-							logMessage += 'Single-row park...';
-							autoDotCommon(park.cells, 'row');
-							nrpLog.push('autoDotRow' + park.getColor());
+						if (lonerCells.length) {
+							$s.changeState(lonerCells[0], 'tree');
 							repeatLoop = true;
 							return false;
-						} else if (_.contains(commonalities, 'column') && !_.contains(nrpLog, 'autoDotColumn' + park.getColor())) {	//	if in same column, dot all other cells in that column
-							logMessage += 'Single-column park...';
-							autoDotCommon(park.cells, 'column');
-							nrpLog.push('autoDotColumn' + park.getColor());
-							repeatLoop = true;
-							return false;
-						}
+						} else {
+							commonalities = findCommonalities(park.cells, ['park']);	//	what do ALL of these cells have in common (besides 'park')?
 
-						if (_.contains(commonalities, 'orthogonallyAdjacent') && !_.contains(nrpLog, 'duplex' + park.getColor())) {	//	only happens with duplexes
-							logMessage += 'Duplex...';
-							if (_.contains(commonalities, 'row')) {
-								_.forEach(park.cells, function eachCell(cell) {
-									autoDotNeighbors(cell, 'relative', {x: 0, y: 1});
-									autoDotNeighbors(cell, 'relative', {x: 0, y: -1});
-								});
-							} else {	//	same column
-								_.forEach(park.cells, function eachCell(cell) {
-									autoDotNeighbors(cell, 'relative', {x: 1, y: 0});
-									autoDotNeighbors(cell, 'relative', {x: -1, y: 0});
-								});
+							if (_.contains(commonalities, 'row') && !_.contains(nrpLog, 'autoDotRow' + park.getColor())) {	//	if in same row, dot all other cells in that row
+								logMessage = 'Single-row park...';
+								autoDotCommon(park.cells, 'row');
+								nrpLog.push('autoDotRow' + park.getColor());
+								repeatLoop = true;
+								return false;
+							} else if (_.contains(commonalities, 'column') && !_.contains(nrpLog, 'autoDotColumn' + park.getColor())) {	//	if in same column, dot all other cells in that column
+								logMessage = 'Single-column park...';
+								autoDotCommon(park.cells, 'column');
+								nrpLog.push('autoDotColumn' + park.getColor());
+								repeatLoop = true;
+								return false;
 							}
 
-							nrpLog.push('duplex' + park.getColor());
-							repeatLoop = true;
-							return false;
+							if (_.contains(commonalities, 'orthogonallyAdjacent') && !_.contains(nrpLog, 'duplex' + park.getColor())) {	//	only happens with duplexes
+								logMessage = 'Duplex...';
+								if (_.contains(commonalities, 'row')) {
+									_.forEach(park.cells, function eachCell(cell) {
+										autoDotNeighbors(cell, 'relative', {x: 0, y: 1});
+										autoDotNeighbors(cell, 'relative', {x: 0, y: -1});
+									});
+								} else {	//	same column
+									_.forEach(park.cells, function eachCell(cell) {
+										autoDotNeighbors(cell, 'relative', {x: 1, y: 0});
+										autoDotNeighbors(cell, 'relative', {x: -1, y: 0});
+									});
+								}
+
+								nrpLog.push('duplex' + park.getColor());
+								repeatLoop = true;
+								return false;
+							}
 						}
-					}
-				});
+					});
+				}
 
 				if (!repeatLoop) {
 					if (puzzleSolved()) {
 						_.forEach(_.filter($s.puzzle.getCells(), {state: 'note'}), function eachNoteCell(cell) {
 							$s.changeState(cell, 'tree');
 						});
-						console.log('\nPuzzle is solved! Congratulations!\n (... on pressing the big red button :P)\n');
-						console.log('Total time taken: ' + ((new Date().getTime() - startTime) / 1000) + ' seconds');
-						console.log('Total steps taken: ' + steps);
+						logMessage = 'Convert Notes to Trees...';
+						logPuzzleState();
+						console.log('\nPuzzle is solved! Hooray!\n');
+						console.log('Time Elapsed: ' + ((new Date().getTime() - startTime) / 1000) + ' seconds');
+						console.log('Steps taken: ' + steps);
 					} else {
 						if (sanityCheck()) {
-							logMessage += 'Guess...';
+							logMessage = 'Guess...';
 							$s.changeState($s.puzzle.getParks(true)[0].cells[0], 'note');
 							repeatLoop = true;
 						} else {
-							logMessage += 'Pull the latest note...';
+							logMessage = 'Pull the latest note...';
 							//	puzzle is in error, our last note is wrong.  Let's fix it.
 							var latestNote = _.max($s.puzzle.getCells('note'), 'timestamp');
 							var cellsAfterLastNote = _.filter($s.puzzle.getCells(), function cellFilter(cell) {
