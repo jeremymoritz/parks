@@ -190,8 +190,11 @@ app.controller('ParksController', [
 			$s.selectedAction = action;
 		};
 
-		$s.changeState = function changeState(cell, state) {
+		$s.changeState = function changeState(cell, state, onlyIfBlank) {
 			if (state) {	//	this is set via the solve button only
+				if (onlyIfBlank && cell.state !== 'blank') {
+					return;
+				}
 				cell.state = state;
 				var time = new Date().getTime();
 				cell.timestamp = time;
@@ -255,10 +258,30 @@ app.controller('ParksController', [
 			return _.pull(neighbors, primaryCell);
 		}
 
+		function isTreeOrNote(cell) {
+			return _.contains(['tree', 'note'], cell.state);
+		}
+
 		function autoDotNeighbors(cell, kindsOfNeighbors, relativeCoords) {
 			_.forEach(identifyNeighbors(cell, kindsOfNeighbors, relativeCoords, true), function eachCell(thisCell) {
 				$s.changeState(thisCell, 'dot');
 			});
+
+			if ($s.puzzle.treeCount === 2 && isTreeOrNote(cell)) {
+				var thisRowCells = _.where($s.puzzle.cells, {row: cell.row});
+				var thisColumnCells = _.where($s.puzzle.cells, {column: cell.column});
+
+				if (_.filter(thisRowCells, isTreeOrNote).length === 2) {
+					_.forEach(thisRowCells, function eachCell(cell) {
+						$s.changeState(cell, 'dot', true);
+					});
+				}
+				if (_.filter(thisColumnCells, isTreeOrNote).length === 2) {
+					_.forEach(thisColumnCells, function eachCell(cell) {
+						$s.changeState(cell, 'dot', true);
+					});
+				}
+			}
 		}
 
 		function autoDotCommon(cells, property) {	//	place dots on all cells with the given property in common with the given cells (but not the given cells themselves)
