@@ -167,7 +167,6 @@ app.controller('ParksController', [
 		}
 
 		$s.availablePuzzles = PuzzleFactory.getAllPuzzles();
-
 		$s.puzzleChose = $s.availablePuzzles[0];
 
 		$s.choosePuzzle = function choosePuzzle() {
@@ -214,11 +213,12 @@ app.controller('ParksController', [
 
 		function identifyNeighbors(primaryCell, kindsOfNeighbors, relativeCoords, onlyBlanks) {
 			var neighborsObj = {
-				diagonallyAdjacent: _.filter($s.puzzle.getCells(), function matchDiagonallyAdjacentNeighbors(cellToCheck) {
-					return Math.abs(cellToCheck.row - primaryCell.row) + Math.abs(cellToCheck.column - primaryCell.column) === 2 && cellToCheck.row !== primaryCell.row && cellToCheck.column !== primaryCell.column;
+				diagonallyAdjacent: _.where($s.puzzle.getCells(), function matchDiagonallyAdjacentNeighbors(cellToCheck) {
+					return Math.abs(cellToCheck.row - primaryCell.row) === 1 && Math.abs(cellToCheck.column - primaryCell.column) === 1;
 				}),
-				orthogonallyAdjacent: _.filter($s.puzzle.getCells(), function matchDiagonallyAdjacentNeighbors(cellToCheck) {
-					return (Math.abs(cellToCheck.row - primaryCell.row) === 1 && cellToCheck.column === primaryCell.column) || (Math.abs(cellToCheck.column - primaryCell.column) === 1 && cellToCheck.row === primaryCell.row);
+				orthogonallyAdjacent: _.where($s.puzzle.getCells(), function matchOrthogonallyAdjacentNeighbors(cellToCheck) {
+					return (Math.abs(cellToCheck.row - primaryCell.row) === 1 && cellToCheck.column === primaryCell.column) ||
+						(Math.abs(cellToCheck.column - primaryCell.column) === 1 && cellToCheck.row === primaryCell.row);
 				}),
 				relative: _.filter($s.puzzle.getCells(), function matchRelative(cellToCheck) {
 					if (relativeCoords) {
@@ -342,20 +342,22 @@ app.controller('ParksController', [
 
 		function sanityCheck() {
 			var treeCount = $s.puzzle.treeCount;
-			function allSameState(cellCollections) {
-				var allBad = false;
+			function isUnsolvable(cellCollections) {
+				var unsolvable = false;	//	double-negative perhaps, but this is what we're actually testing for
 				_.forEach(cellCollections, function eachCollection(cellCollection) {
 					var blanks = _.where(cellCollection.cells, {state: 'blank'});
-					var checkCount = _.where(cellCollection.cells, {state: 'tree'}).length + _.where(cellCollection.cells, {state: 'note'}).length;
-					if((checkCount < treeCount && !blanks.length) || checkCount > treeCount) {
-						allBad = true;
+					var treesAndNotesCount = _.filter(cellCollection.cells, function matchTreesAndNotes(cell) {
+						return _.contains(['tree', 'note'], cell.state);
+					}).length;
+					if((treesAndNotesCount < treeCount && !blanks.length) || treesAndNotesCount > treeCount) {
+						unsolvable = true;	//	must be an error somewhere
 						return false;
 					}
 				});
-				return allBad;
+				return unsolvable;
 			}
 
-			return !(allSameState($s.puzzle.getParks()) || allSameState($s.puzzle.getRows()) || allSameState($s.puzzle.getColumns()));
+			return !(isUnsolvable($s.puzzle.getParks()) || isUnsolvable($s.puzzle.getRows()) || isUnsolvable($s.puzzle.getColumns()));
 		}
 
 		$s.solvePuzzle = function solvePuzzle() {
