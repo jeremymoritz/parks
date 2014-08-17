@@ -14,18 +14,6 @@ app.controller('ParksController', [
 			return this;
 		}
 
-		function Row(cellsArray) {
-			this.cells = cellsArray || [];
-
-			return this;
-		}
-
-		function Column(cellsArray) {
-			this.cells = cellsArray || [];
-
-			return this;
-		}
-
 		function Park(cellsArray) {
 			this.cells = cellsArray || [];
 
@@ -63,7 +51,7 @@ app.controller('ParksController', [
 
 				_.forEach(this.cells, function eachCell(cell) {
 					if (!rows[cell.row]) {
-						rows[cell.row] = new Row();
+						rows[cell.row] = {cells: []};
 					}
 
 					rows[cell.row].cells.push(cell);
@@ -76,7 +64,7 @@ app.controller('ParksController', [
 
 				_.forEach(this.cells, function eachCell(cell) {
 					if (!columns[cell.column]) {
-						columns[cell.column] = new Column();
+						columns[cell.column] = {cells: []};
 					}
 
 					columns[cell.column].cells.push(cell);
@@ -103,7 +91,7 @@ app.controller('ParksController', [
 				if (onlyBlanks) {
 					_.forEach(parks, function eachPark(park) {
 						park.cells = _.filter(park.cells, function filterOutNonBlanks(cell) {
-							return cell.state === 'blank';
+							return isBlank(cell);
 						});
 					});
 				}
@@ -192,7 +180,7 @@ app.controller('ParksController', [
 
 		$s.changeState = function changeState(cell, state, onlyIfBlank) {
 			if (state) {	//	this is set via the solve button only
-				if (onlyIfBlank && cell.state !== 'blank') {
+				if (onlyIfBlank && !isBlank(cell.state)) {
 					return;
 				}
 				cell.state = state;
@@ -262,26 +250,14 @@ app.controller('ParksController', [
 			return _.contains(['tree', 'note'], cell.state);
 		}
 
+		function isBlank(cell) {
+			return cell.state === 'blank';
+		}
+
 		function autoDotNeighbors(cell, kindsOfNeighbors, relativeCoords) {
 			_.forEach(identifyNeighbors(cell, kindsOfNeighbors, relativeCoords, true), function eachCell(thisCell) {
 				$s.changeState(thisCell, 'dot');
 			});
-
-			if ($s.puzzle.treeCount === 2 && isTreeOrNote(cell)) {
-				var thisRowCells = _.where($s.puzzle.cells, {row: cell.row});
-				var thisColumnCells = _.where($s.puzzle.cells, {column: cell.column});
-
-				if (_.filter(thisRowCells, isTreeOrNote).length === 2) {
-					_.forEach(thisRowCells, function eachCell(cell) {
-						$s.changeState(cell, 'dot', true);
-					});
-				}
-				if (_.filter(thisColumnCells, isTreeOrNote).length === 2) {
-					_.forEach(thisColumnCells, function eachCell(cell) {
-						$s.changeState(cell, 'dot', true);
-					});
-				}
-			}
 		}
 
 		function autoDotCommon(cells, property) {	//	place dots on all cells with the given property in common with the given cells (but not the given cells themselves)
@@ -370,7 +346,7 @@ app.controller('ParksController', [
 				_.forEach(cellCollections, function eachCollection(cellCollection) {
 					var blanks = _.where(cellCollection.cells, {state: 'blank'});
 					var treesAndNotesCount = _.filter(cellCollection.cells, function matchTreesAndNotes(cell) {
-						return _.contains(['tree', 'note'], cell.state);
+						return isTreeOrNote(cell);
 					}).length;
 					if((treesAndNotesCount < treeCount && !blanks.length) || treesAndNotesCount > treeCount) {
 						unsolvable = true;	//	must be an error somewhere
@@ -433,6 +409,58 @@ app.controller('ParksController', [
 							}
 						}
 					});
+				} else if ($s.puzzle.treeCount === 2) {
+					var hasTwoTrees = function hasTwoTrees(cellCollection) {
+						return _.filter(cellCollection.cells, isTreeOrNote).length === 2;
+					};
+					var dotOthersInTwoTreeCollection = function dotOthersInTwoTreeCollection(cellCollection) {
+						var blankCells = _.filter(cellCollection.cells, isBlank);
+
+						if (blankCells.length) {
+							logMessage = 'Two Trees in a Row, Column, or Park. Dot the rest...';
+							_.forEach(blankCells, function eachBlankCell(cell) {
+								$s.changeState(cell, 'dot');
+							});
+
+							return true;	//	making new dots
+						}
+						return false;	//	no new dots
+					};
+
+					var twoTreeCollectionFound = false;
+					_.forEach($s.puzzle.getRows(), function eachRow(row) {
+						if (hasTwoTrees(row)) {
+							if (dotOthersInTwoTreeCollection(row)) {
+								twoTreeCollectionFound = true;
+								return false;
+							}
+						}
+					});
+
+					if (!twoTreeCollectionFound) {
+						_.forEach($s.puzzle.getColumns(), function eachColumn(column) {
+							if (hasTwoTrees(column)) {
+								if (dotOthersInTwoTreeCollection(column)) {
+									twoTreeCollectionFound = true;
+									return false;
+								}
+							}
+						});
+					}
+
+					if (!twoTreeCollectionFound) {
+						_.forEach($s.puzzle.getParks(), function eachPark(park) {
+							if (hasTwoTrees(park)) {
+								if (dotOthersInTwoTreeCollection(park)) {
+									return false;
+								}
+							}
+						});
+					}
+
+					if (twoTreeCollectionFound) {
+						repeatLoop = true;
+					}
 				}
 
 				if (!repeatLoop) {

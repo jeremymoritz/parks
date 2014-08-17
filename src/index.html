@@ -28,6 +28,12 @@
 		</div>
 		<div class="row">
 			<section class="col-xs-12">
+				<button class="btn btn-danger"
+					ng-click="solvePuzzle()"><i class="fa fa-key"></i> Solve</button>
+			</section>
+		</div>
+		<div class="row">
+			<section class="col-xs-12">
 				<section class="action-bar">
 					<ul class="btn-group">
 						<li class="btn btn-default"
@@ -43,12 +49,6 @@
 		<div class="row">
 			<section class="col-xs-12 form-inline">
 				<label>Puzzle No. </label> <select ng-model="puzzleChose" class="form-control" ng-options="singlePuzzle.id for singlePuzzle in availablePuzzles" ng-change="choosePuzzle()"></select>
-			</section>
-		</div>
-		<div class="row">
-			<section class="col-xs-12">
-				<button class="btn btn-danger"
-					ng-click="solvePuzzle()"><i class="fa fa-key"></i> Solve</button>
 			</section>
 		</div>
 	</div>

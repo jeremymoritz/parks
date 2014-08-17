@@ -138,5 +138,5 @@ app.factory('PuzzleFactory', [function PuzzleFactory() {
 				}
 			];
 		}
-	}
+	};
 }]);
