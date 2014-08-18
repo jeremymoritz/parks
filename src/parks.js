@@ -3,7 +3,7 @@ var app = angular.module('ParksApp', []);
 app.controller('ParksController', [
 	'$scope',
 	'PuzzleFactory',
-	function ParksController($scope, PuzzleFactory) {
+	function ParksController($s, PuzzleFactory) {
 		function Cell(color, row, column, state, timestamp) {
 			this.color = color;
 			this.row = row;
@@ -133,7 +133,6 @@ app.controller('ParksController', [
 			logMessage = '';	//	reset logMessage
 		}
 
-		var $s = $scope;
 		var logMessage;
 		var nrpLog;
 		var steps;
