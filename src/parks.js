@@ -368,11 +368,6 @@ app.controller('ParksController', [
 				startTime = new Date().getTime();
 			}
 			(function loopThroughParks() {
-				if (steps % 2300 === 0) {
-					steps++;
-					setTimeout($s.triggerClick, 10);
-					return false;
-				}
 				var repeatLoop = false;
 				if ($s.puzzle.treeCount === 1) {
 					_.forEach($s.puzzle.getParks(true), function eachPark(park) {
@@ -509,8 +504,13 @@ app.controller('ParksController', [
 				}
 
 				if (repeatLoop) {
-					logPuzzleState();
-					loopThroughParks();
+					logPuzzleState();				
+					if (steps % 20 === 0) {
+						setTimeout($s.triggerClick, 1);
+						return false;
+					} else {
+						loopThroughParks();
+					}					
 				}
 			})();
 		};
