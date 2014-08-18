@@ -3,7 +3,7 @@ var app = angular.module('ParksApp', []);
 app.controller('ParksController', [
 	'$scope',
 	'PuzzleFactory',
-	function ParksController($s, PuzzleFactory) {
+	function ParksController($scope, PuzzleFactory) {
 		function Cell(color, row, column, state, timestamp) {
 			this.color = color;
 			this.row = row;
@@ -133,9 +133,11 @@ app.controller('ParksController', [
 			logMessage = '';	//	reset logMessage
 		}
 
+		var $s = $scope;
 		var logMessage;
 		var nrpLog;
 		var steps;
+		var startTime;
 
 		function loadPuzzle(newPuzzle) {
 			$s.puzzle = new Puzzle(newPuzzle.id);
@@ -331,8 +333,8 @@ app.controller('ParksController', [
 			return lonerCells;
 		}
 
-		function puzzleSolved() {
-			if (sanityCheck()) {
+		function puzzleSolved(sanity) {
+			if (sanity) {
 				return $s.puzzle.getCells(['tree', 'note']).length === (Math.sqrt($s.puzzle.cells.length) * $s.puzzle.treeCount);
 			}
 			return false;
@@ -358,9 +360,20 @@ app.controller('ParksController', [
 			return !(isUnsolvable($s.puzzle.getParks()) || isUnsolvable($s.puzzle.getRows()) || isUnsolvable($s.puzzle.getColumns()));
 		}
 
+		$s.triggerClick = function triggerClick() {
+			$('#solveBtn').trigger('click');
+		};
+
 		$s.solvePuzzle = function solvePuzzle() {
-			var startTime = new Date().getTime();
+			if (steps === 0) {
+				startTime = new Date().getTime();
+			}
 			(function loopThroughParks() {
+				if (steps % 2300 === 0) {
+					steps++;
+					setTimeout($s.triggerClick, 10);
+					return false;
+				}
 				var repeatLoop = false;
 				if ($s.puzzle.treeCount === 1) {
 					_.forEach($s.puzzle.getParks(true), function eachPark(park) {
@@ -463,7 +476,8 @@ app.controller('ParksController', [
 				}
 
 				if (!repeatLoop) {
-					if (puzzleSolved()) {
+					var sanity = sanityCheck();
+					if (puzzleSolved(sanity)) {
 						_.forEach(_.filter($s.puzzle.getCells(), {state: 'note'}), function eachNoteCell(cell) {
 							$s.changeState(cell, 'tree');
 						});
@@ -472,8 +486,10 @@ app.controller('ParksController', [
 						console.log('\nPuzzle is solved! Hooray!\n');
 						console.log('Time Elapsed: ' + ((new Date().getTime() - startTime) / 1000) + ' seconds');
 						console.log('Steps taken: ' + steps);
+						steps = 0;
+						$s.solveMessage = 'We Did it!';
 					} else {
-						if (sanityCheck()) {
+						if (sanity) {
 							logMessage = 'Guess...';
 							$s.changeState($s.puzzle.getParks(true)[0].cells[0], 'note');
 							repeatLoop = true;
