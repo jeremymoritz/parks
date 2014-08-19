@@ -121,6 +121,7 @@ app.controller('ParksController', [
 				note: '¥'
 			};
 
+			logMessage = '>>>>>[' + (steps + 1) + '.] ' + logMessage;
 			_.forEach($s.puzzle.getRows(), function eachRow(row) {
 				logMessage += '\n';	//	logMessage is set outside
 				_.forEach(row.cells, function eachCell(cell) {
@@ -504,13 +505,13 @@ app.controller('ParksController', [
 				}
 
 				if (repeatLoop) {
-					logPuzzleState();				
+					logPuzzleState();
 					if (steps % 20 === 0) {
 						setTimeout($s.triggerClick, 1);
 						return false;
 					} else {
 						loopThroughParks();
-					}					
+					}
 				}
 			})();
 		};
