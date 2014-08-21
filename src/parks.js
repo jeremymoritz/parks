@@ -174,32 +174,45 @@ app.controller('ParksController', [
 			dot: 'circle',
 			note: 'flag'
 		};
+		$s.creatingPuzzle = false;
+		$s.selectedColor = 'color1';
+		$s.colorOptions = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8', 'color9', 'color10', 'color11', 'color12'];
+		//$s.colors = ['color1'].concat($s.colorOptions);
 
 		$s.selectThisAction = function selectThisAction(action) {
 			$s.selectedAction = action;
 		};
 
-		$s.changeState = function changeState(cell, state, onlyIfBlank) {
-			if (state) {	//	this is set via the solve button only
-				if (onlyIfBlank && !isBlank(cell.state)) {
-					return;
-				}
-				cell.state = state;
-				var time = new Date().getTime();
-				cell.timestamp = time;
+		$s.selectThisColor = function selectThisColor(color) {
+			$s.selectedColor = color;
+			console.log($s.selectedColor);
+		};
 
-				switch(state) {
-				case 'note':
-					while(time === new Date().getTime()) {} // wait up to one millisecond, then
-						/* fall through */
-				case 'tree':
-					autoDotNeighbors(cell, 'all');
-					break;
+		$s.changeState = function changeState(cell, state, onlyIfBlank) {
+			if($s.creatingPuzzle) {
+				cell.color = $s.selectedColor;
+			} else {
+				if (state) {	//	this is set via the solve button only
+					if (onlyIfBlank && !isBlank(cell.state)) {
+						return;
+					}
+					cell.state = state;
+					var time = new Date().getTime();
+					cell.timestamp = time;
+
+					switch(state) {
+					case 'note':
+						while(time === new Date().getTime()) {} // wait up to one millisecond, then
+							/* fall through */
+					case 'tree':
+						autoDotNeighbors(cell, 'all');
+						break;
+					}
+				} else if (_.contains($s.cellStates, $s.selectedAction)) {	//	human only
+					cell.state = $s.selectedAction;
+				} else {	//	the rotate option is on (human only)
+					cell.state = (cell.state === 'dot' ? 'tree' : (cell.state === 'tree' ? 'blank' : 'dot'));
 				}
-			} else if (_.contains($s.cellStates, $s.selectedAction)) {	//	human only
-				cell.state = $s.selectedAction;
-			} else {	//	the rotate option is on (human only)
-				cell.state = (cell.state === 'dot' ? 'tree' : (cell.state === 'tree' ? 'blank' : 'dot'));
 			}
 		};
 
@@ -364,7 +377,26 @@ app.controller('ParksController', [
 			$('#solveBtn').trigger('click');
 		};
 
+		$s.clearPuzzle = function clearPuzzle() {
+			var allCells = $s.puzzle.getCells();
+			var notEmpty = _.find(allCells, {'state': 'dot'});
+			if(notEmpty) {
+				_.forEach(allCells, function(thisCell) {
+					$s.changeState(thisCell, 'blank');
+				});
+			} else {
+				_.forEach(allCells, function(thisCell) {
+					thisCell.color = $s.selectedColor;
+				});
+			}
+		};
+
+		$s.createPuzzle = function createPuzzle() {
+			$s.creatingPuzzle = true;
+		};
+
 		$s.solvePuzzle = function solvePuzzle() {
+			$s.creatingPuzzle = false;
 			if (steps === 0) {
 				startTime = new Date().getTime();
 			}

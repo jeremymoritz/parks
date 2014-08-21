@@ -30,17 +30,31 @@
 			<section class="col-xs-12">
 				<button id="solveBtn" class="btn btn-danger"
 					ng-click="solvePuzzle()"><i class="fa fa-key"></i> Solve</button>
+				<button id="createBtn" class="btn btn-warning"
+					ng-click="createPuzzle()"><i class="fa fa-check-square-o"></i> Create</button>
+				<button id="clearBtn" class="btn btn-info"
+					ng-click="clearPuzzle()"><i class="fa fa-reply"></i> Clear</button>
 			</section>
 		</div>
 		<div class="row">
 			<section class="col-xs-12">
-				<section class="action-bar">
+				<section class="action-bar" id="solving" ng-hide="creatingPuzzle">
 					<ul class="btn-group">
 						<li class="btn btn-default"
 							ng-repeat="action in actions"
 							ng-class="{active: selectedAction === action}"
 							ng-click="selectThisAction(action)">
 							<i class="fa fa-fw" ng-class="'fa-' + actionIcons[action]"></i>
+						</li>
+					</ul>
+				</section>
+				<section class="action-bar" id="creating" ng-show="creatingPuzzle">
+					<ul class="btn-group">
+						<li class="btn btn-default"
+							ng-repeat="color in colorOptions"
+							ng-class="color"
+							ng-class="'fa-' + color"
+							ng-click="selectThisColor(color)">
 						</li>
 					</ul>
 				</section>
