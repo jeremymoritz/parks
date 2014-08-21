@@ -17,9 +17,9 @@
 					<tbody>
 						<tr ng-repeat="row in puzzle.getRows()">
 							<td ng-repeat="cell in row.cells"
-								ng-class="cell.color"
+								class="{{cell.color}} {{cell.state}}"
 								ng-click="changeState(cell)">
-								<i class="fa fa-lg fa-fw" ng-class="'fa-' + actionIcons[cell.state]"></i>
+								<i ng-hide="cell.state === 'tree'" class="fa fa-lg fa-fw" ng-class="'fa-' + actionIcons[cell.state]"></i>
 							</td>
 						</tr>
 					</tbody>

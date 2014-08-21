@@ -3,7 +3,7 @@ module.exports = function(grunt) {
 	grunt.config('copy', {
 		dev: {
 			files: [
-				// copy all images / svgs
+				// copy all html pages
 				{
 					expand: true,
 					cwd: 'src/',
@@ -23,6 +23,14 @@ module.exports = function(grunt) {
 				{
 					src: 'lib/angular/angular.js',
 					dest: '<%= distPath %>angular.js'
+				},
+
+				// copy all img files too
+				{
+					expand: true,
+					cwd: 'src/',
+					src: ['*.png'],
+					dest: '<%= distRoot %>/_inc/'
 				}
 			]
 		},
@@ -64,6 +72,14 @@ module.exports = function(grunt) {
 				{
 					src: 'lib/angular/angular.min.js',
 					dest: '<%= distPath %>angular.js'
+				},
+
+				// copy all img files too
+				{
+					expand: true,
+					cwd: 'src/',
+					src: ['*.png'],
+					dest: '<%= distRoot %>/_inc/'
 				}
 			]
 		}
