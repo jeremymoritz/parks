@@ -1,5 +1,9 @@
 var app = angular.module('ParksApp', []);
 
+app.run(function runApp($rootScope) {
+	$rootScope._ = _;	//	allows lodash to be used in the view
+});
+
 app.controller('ParksController', [
 	'$scope',
 	'PuzzleFactory',
@@ -312,10 +316,9 @@ app.controller('ParksController', [
 		var steps;
 		var startTime;
 
-		$s.introPage = true;	//	initially show the intro page;
-
-		$s.startParks = function startParks() {
-			$s.introPage = false;
+		$s.page = 'intro';	//	initially show the intro page;
+		$s.switchPage = function switchPage(newPage) {
+			$s.page = newPage;
 		};
 
 		$s.triggerClick = function triggerClick() {

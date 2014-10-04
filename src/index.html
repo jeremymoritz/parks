@@ -10,13 +10,36 @@
 </head>
 <body>
 	<div class="container" ng-app="ParksApp" ng-controller="ParksController">
-		<section ng-show="introPage" class="text-center">
+		<section ng-show="page === 'intro'" id="intro-view">
 			<img src="_inc/parks-title.png" alt="Parks" class="img-responsive">
-			<button ng-click="startParks()" class="btn btn-primary">Start</button>
+			<button ng-click="switchPage('puzzle')" class="btn btn-primary">
+				<i class="fa fa-tree"></i> Start Solving Puzzles! <i class="fa fa-tree"></i>
+			</button><br><br>
+			<a ng-click="switchPage('rules')">Learn the Rules</a>
 		</section>
-		<section ng-show="!introPage">
+		<section ng-show="page === 'rules'" id="rules-view">
+			<h2>Rules of Parks</h2>
+			<h3>Put one Tree in each Park, row and column. (two in bigger levels)</h3>
+			<p>In Parks, you have many differently colored areas (Parks) on the board.</p>
+			<p>The goal is to plant Trees, following these rules</p>
+			<ul>
+				<li>A Tree can't touch another Tree, not even diagonally</li>
+				<li>Each Park must have exactly 1 Tree</li>
+				<li>There must be exactly 1 Tree in each row and each column (small puzzles)</li>
+				<li>Large puzzles have TWO trees in each Park, each row and each column. (NOTE: You will see how many Trees you must place in the top right)</li>
+			</ul>
+			<p>Common Mistakes:</p>
+			<ul>
+				<li>Remember a Tree CAN NOT touch another tree diagonally but it CAN be on the same diagonal line</li>
+				<li>Check the number of required Trees on the top right corner</li>
+			</ul>
+		</section>
+		<section ng-show="page === 'puzzle'" id="puzzle-view">
 			<div class="row">
 				<section class="col-xs-12 puzzle">
+					<div class="pull-right tree-display">
+						<img ng-repeat="t in _.range(puzzle.treeCount) track by $index" src="_inc/tree-icon.png" class="img-responsive" alt="T">
+					</div>
 					<table>
 						<caption>Puzzle: {{puzzle.id}}</caption>
 						<tbody>
