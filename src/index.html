@@ -10,61 +10,67 @@
 </head>
 <body>
 	<div class="container" ng-app="ParksApp" ng-controller="ParksController">
-		<div class="row">
-			<section class="col-xs-12 puzzle">
-				<table>
-					<caption>Puzzle: {{puzzle.id}}</caption>
-					<tbody>
-						<tr ng-repeat="row in puzzle.getRows()">
-							<td ng-repeat="cell in row.cells"
-								class="{{cell.color}} {{cell.state}}"
-								ng-click="changeState(cell)">
-								<i ng-hide="cell.state === 'tree'" class="fa fa-lg fa-fw" ng-class="'fa-' + actionIcons[cell.state]"></i>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</section>
-		</div>
-		<div class="row top-buffer">
-			<section class="col-xs-12">
-				<button id="solveBtn" class="btn btn-danger"
-					ng-click="solvePuzzle()"><i class="fa fa-key"></i> Solve</button>
-				<button id="createBtn" class="btn btn-warning"
-					ng-click="createPuzzle()"><i class="fa fa-check-square-o"></i> Create</button>
-				<button id="clearBtn" class="btn btn-info"
-					ng-click="clearPuzzle()"><i class="fa fa-reply"></i> Clear</button>
-			</section>
-		</div>
-		<div class="row">
-			<section class="col-xs-12">
-				<section class="action-bar" id="solving" ng-hide="creatingPuzzle">
-					<ul class="btn-group">
-						<li class="btn btn-default"
-							ng-repeat="action in actions"
-							ng-class="{active: selectedAction === action}"
-							ng-click="selectThisAction(action)">
-							<i class="fa fa-fw" ng-class="'fa-' + actionIcons[action]"></i>
-						</li>
-					</ul>
+		<section ng-show="introPage" class="text-center">
+			<img src="_inc/parks-title.png" alt="Parks" class="img-responsive">
+			<button ng-click="startParks()" class="btn btn-primary">Start</button>
+		</section>
+		<section ng-show="!introPage">
+			<div class="row">
+				<section class="col-xs-12 puzzle">
+					<table>
+						<caption>Puzzle: {{puzzle.id}}</caption>
+						<tbody>
+							<tr ng-repeat="row in puzzle.getRows()">
+								<td ng-repeat="cell in row.cells"
+									class="{{cell.color}} {{cell.state}}"
+									ng-click="changeState(cell)">
+									<i ng-hide="cell.state === 'tree'" class="fa fa-lg fa-fw" ng-class="'fa-' + actionIcons[cell.state]"></i>
+								</td>
+							</tr>
+						</tbody>
+					</table>
 				</section>
-				<section class="action-bar" id="creating" ng-show="creatingPuzzle">
-					<ul class="btn-group">
-						<li class="btn btn-default"
-							ng-repeat="color in colorOptions"
-							ng-class="color"
-							ng-class="'fa-' + color"
-							ng-click="selectThisColor(color)">
-						</li>
-					</ul>
+			</div>
+			<div class="row top-buffer">
+				<section class="col-xs-12">
+					<button id="solveBtn" class="btn btn-danger"
+						ng-click="solvePuzzle()"><i class="fa fa-key"></i> Solve</button>
+					<button id="createBtn" class="btn btn-warning"
+						ng-click="createPuzzle()"><i class="fa fa-check-square-o"></i> Create</button>
+					<button id="clearBtn" class="btn btn-info"
+						ng-click="clearPuzzle()"><i class="fa fa-reply"></i> Clear</button>
 				</section>
-			</section>
-		</div>
-		<div class="row">
-			<section class="col-xs-12 form-inline">
-				<label>Puzzle No. </label> <select ng-model="puzzleChose" class="form-control" ng-options="singlePuzzle.id for singlePuzzle in availablePuzzles" ng-change="choosePuzzle()"></select>
-			</section>
-		</div>
+			</div>
+			<div class="row">
+				<section class="col-xs-12">
+					<section class="action-bar" id="solving" ng-hide="creatingPuzzle">
+						<ul class="btn-group">
+							<li class="btn btn-default"
+								ng-repeat="action in actions"
+								ng-class="{active: selectedAction === action}"
+								ng-click="selectThisAction(action)">
+								<i class="fa fa-fw" ng-class="'fa-' + actionIcons[action]"></i>
+							</li>
+						</ul>
+					</section>
+					<section class="action-bar" id="creating" ng-show="creatingPuzzle">
+						<ul class="btn-group">
+							<li class="btn btn-default"
+								ng-repeat="color in colorOptions"
+								ng-class="color"
+								ng-class="'fa-' + color"
+								ng-click="selectThisColor(color)">
+							</li>
+						</ul>
+					</section>
+				</section>
+			</div>
+			<div class="row">
+				<section class="col-xs-12 form-inline">
+					<label>Puzzle No. </label> <select ng-model="puzzleChose" class="form-control" ng-options="singlePuzzle.id for singlePuzzle in availablePuzzles" ng-change="choosePuzzle()"></select>
+				</section>
+			</div>
+		</section>
 	</div>
 	@@javascriptReplaceFiles
 </body>

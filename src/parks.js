@@ -134,11 +134,6 @@ app.controller('ParksController', [
 			logMessage = '';	//	reset logMessage
 		}
 
-		var logMessage;
-		var nrpLog;
-		var steps;
-		var startTime;
-
 		function loadPuzzle(newPuzzle) {
 			$s.puzzle = new Puzzle(newPuzzle.id);
 			var gridSize = newPuzzle.puzzleColors.length;
@@ -154,67 +149,6 @@ app.controller('ParksController', [
 				}
 			}
 		}
-
-		$s.availablePuzzles = PuzzleFactory.getAllPuzzles();
-		$s.puzzleChose = $s.availablePuzzles[0];
-
-		$s.choosePuzzle = function choosePuzzle() {
-			loadPuzzle($s.puzzleChose);
-		};
-
-		$s.puzzle = {};
-
-		$s.selectedAction = 'rotate';
-		$s.cellStates = ['blank', 'dot', 'tree', 'note'];
-		$s.actions = ['rotate'].concat($s.cellStates);
-		$s.actionIcons = {
-			rotate: 'refresh',
-			blank: 'square-o',
-			tree: 'tree',
-			dot: 'circle',
-			note: 'flag'
-		};
-		$s.creatingPuzzle = false;
-		$s.selectedColor = 'color1';
-		$s.colorOptions = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8', 'color9', 'color10', 'color11', 'color12'];
-		//$s.colors = ['color1'].concat($s.colorOptions);
-
-		$s.selectThisAction = function selectThisAction(action) {
-			$s.selectedAction = action;
-		};
-
-		$s.selectThisColor = function selectThisColor(color) {
-			$s.selectedColor = color;
-			console.log($s.selectedColor);
-		};
-
-		$s.changeState = function changeState(cell, state, onlyIfBlank) {
-			if($s.creatingPuzzle) {
-				cell.color = $s.selectedColor;
-			} else {
-				if (state) {	//	this is set via the solve button only
-					if (onlyIfBlank && !isBlank(cell.state)) {
-						return;
-					}
-					cell.state = state;
-					var time = new Date().getTime();
-					cell.timestamp = time;
-
-					switch(state) {
-					case 'note':
-						while(time === new Date().getTime()) {} // wait up to one millisecond, then
-							/* fall through */
-					case 'tree':
-						autoDotNeighbors(cell, 'all');
-						break;
-					}
-				} else if (_.contains($s.cellStates, $s.selectedAction)) {	//	human only
-					cell.state = $s.selectedAction;
-				} else {	//	the rotate option is on (human only)
-					cell.state = (cell.state === 'dot' ? 'tree' : (cell.state === 'tree' ? 'blank' : 'dot'));
-				}
-			}
-		};
 
 		function identifyNeighbors(primaryCell, kindsOfNeighbors, relativeCoords, onlyBlanks) {
 			var neighborsObj = {
@@ -372,6 +306,17 @@ app.controller('ParksController', [
 
 			return !(isUnsolvable($s.puzzle.getParks()) || isUnsolvable($s.puzzle.getRows()) || isUnsolvable($s.puzzle.getColumns()));
 		}
+
+		var logMessage;
+		var nrpLog;
+		var steps;
+		var startTime;
+
+		$s.introPage = true;	//	initially show the intro page;
+
+		$s.startParks = function startParks() {
+			$s.introPage = false;
+		};
 
 		$s.triggerClick = function triggerClick() {
 			$('#solveBtn').trigger('click');
@@ -546,6 +491,67 @@ app.controller('ParksController', [
 					}
 				}
 			})();
+		};
+
+		$s.availablePuzzles = PuzzleFactory.getAllPuzzles();
+		$s.puzzleChose = $s.availablePuzzles[0];
+
+		$s.choosePuzzle = function choosePuzzle() {
+			loadPuzzle($s.puzzleChose);
+		};
+
+		$s.puzzle = {};
+
+		$s.selectedAction = 'rotate';
+		$s.cellStates = ['blank', 'dot', 'tree', 'note'];
+		$s.actions = ['rotate'].concat($s.cellStates);
+		$s.actionIcons = {
+			rotate: 'refresh',
+			blank: 'square-o',
+			tree: 'tree',
+			dot: 'circle',
+			note: 'flag'
+		};
+		$s.creatingPuzzle = false;
+		$s.selectedColor = 'color1';
+		$s.colorOptions = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8', 'color9', 'color10', 'color11', 'color12'];
+		//$s.colors = ['color1'].concat($s.colorOptions);
+
+		$s.selectThisAction = function selectThisAction(action) {
+			$s.selectedAction = action;
+		};
+
+		$s.selectThisColor = function selectThisColor(color) {
+			$s.selectedColor = color;
+			console.log($s.selectedColor);
+		};
+
+		$s.changeState = function changeState(cell, state, onlyIfBlank) {
+			if($s.creatingPuzzle) {
+				cell.color = $s.selectedColor;
+			} else {
+				if (state) {	//	this is set via the solve button only
+					if (onlyIfBlank && !isBlank(cell.state)) {
+						return;
+					}
+					cell.state = state;
+					var time = new Date().getTime();
+					cell.timestamp = time;
+
+					switch(state) {
+					case 'note':
+						while(time === new Date().getTime()) {} // wait up to one millisecond, then
+							/* fall through */
+					case 'tree':
+						autoDotNeighbors(cell, 'all');
+						break;
+					}
+				} else if (_.contains($s.cellStates, $s.selectedAction)) {	//	human only
+					cell.state = $s.selectedAction;
+				} else {	//	the rotate option is on (human only)
+					cell.state = (cell.state === 'dot' ? 'tree' : (cell.state === 'tree' ? 'blank' : 'dot'));
+				}
+			}
 		};
 
 		loadPuzzle($s.puzzleChose);
