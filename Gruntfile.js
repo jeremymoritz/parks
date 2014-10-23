@@ -9,7 +9,7 @@ module.exports = function(grunt) {
 	// Define the root directory for distribution
 	var distRoot = "dist";
 	// Build main distribution path. NOTE: There is no slash at the end
-	var distPath = distRoot + "/_inc/";
+	var distPath = distRoot + "/inc/";
 	// Set distribution path to grunt config object
 	// This should be used when defining output files
 	// Access this config option using <%= distRoot %>
