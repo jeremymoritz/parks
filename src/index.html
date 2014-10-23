@@ -5,13 +5,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- for Bootstrap -->
 	<title>Parks</title>
 	<link rel="shortcut icon" href="favicon.ico">
-	<link rel="stylesheet" href="_inc/parks.css">
-	<script src="_inc/angular.js"></script>
+	<link rel="stylesheet" href="inc/parks.css">
+	<script src="inc/angular.js"></script>
 </head>
 <body>
 	<div class="container" ng-app="ParksApp" ng-controller="ParksController">
 		<section ng-show="page === 'intro'" id="intro-view">
-			<img src="_inc/parks-title.png" alt="Parks" class="img-responsive">
+			<img src="inc/parks-title.png" alt="Parks" class="img-responsive">
 			<button ng-click="switchPage('puzzle')" class="btn btn-primary">
 				<i class="fa fa-tree"></i> Start Solving Puzzles! <i class="fa fa-tree"></i>
 			</button><br><br>
@@ -38,7 +38,7 @@
 			<div class="row">
 				<section class="col-xs-12 puzzle">
 					<div class="pull-right tree-display">
-						<img ng-repeat="t in _.range(puzzle.treeCount) track by $index" src="_inc/tree-icon.png" class="img-responsive" alt="T">
+						<img ng-repeat="t in _.range(puzzle.treeCount) track by $index" src="inc/tree-icon.png" class="img-responsive" alt="T">
 					</div>
 					<table>
 						<caption>Puzzle: {{puzzle.id}}</caption>
