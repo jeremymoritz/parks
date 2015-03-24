@@ -33,6 +33,9 @@
 				<li>Remember a Tree CAN NOT touch another tree diagonally but it CAN be on the same diagonal line</li>
 				<li>Check the number of required Trees on the top right corner</li>
 			</ul>
+			<button ng-click="switchPage('intro')" class="btn btn-primary">
+				<i class="fa fa-home"></i> Back Home <i class="fa fa-home"></i>
+			</button>
 		</section>
 		<section ng-show="page === 'puzzle'" id="puzzle-view">
 			<div class="row">
@@ -93,6 +96,9 @@
 					<label>Puzzle No. </label> <select ng-model="puzzleChose" class="form-control" ng-options="singlePuzzle.id for singlePuzzle in availablePuzzles" ng-change="choosePuzzle()"></select>
 				</section>
 			</div>
+			<button ng-click="switchPage('intro')" class="btn btn-primary">
+				<i class="fa fa-home"></i> Back Home <i class="fa fa-home"></i>
+			</button>
 		</section>
 	</div>
 	@@javascriptReplaceFiles
